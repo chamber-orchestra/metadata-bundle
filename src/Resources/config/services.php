@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+use ChamberOrchestra\MetadataBundle\EventSubscriber\MetadataSubscriber;
+use ChamberOrchestra\MetadataBundle\Mapping\MetadataReader;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+return static function (ContainerConfigurator $container): void {
+    $services = $container->services();
+
+    $services->defaults()
+        ->autowire()
+        ->autoconfigure()
+        ->public(false);
+
+    $services->load('ChamberOrchestra\\MetadataBundle\\', '../../*')
+        ->exclude([
+            '../../DependencyInjection',
+            '../../Resources',
+            '../../ExceptionInterface',
+            '../../Helper',
+            '../../Mapping/AbstractExtensionMetadata.php',
+            '../../Mapping/ORM/AbstractMetadataConfiguration.php',
+            '../../Mapping/ORM/ExtensionMetadata.php',
+        ]);
+
+    $services->set(MetadataReader::class)
+        ->lazy();
+
+    $services->set(MetadataSubscriber::class)
+        ->tag('doctrine.event_subscriber', ['priority' => -100]);
+};

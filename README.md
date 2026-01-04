@@ -1,3 +1,5 @@
+[![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
+
 # Chamber Orchestra Metadata Bundle
 
 A Symfony bundle that augments Doctrine ORM entities with extension metadata. It provides a metadata factory/reader, mapping drivers, and subscriber hooks to load custom mapping configuration during Doctrine metadata loading.

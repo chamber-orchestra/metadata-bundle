@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 
 class MetadataArgs
 {
-    private ClassMetadata|null $classMetadata = null {
+    public ClassMetadata|null $classMetadata = null {
         get {
             $name = \method_exists($this->configuration, 'getEntityName')
                 ? $this->configuration->getEntityName()

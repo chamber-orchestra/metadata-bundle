@@ -44,12 +44,14 @@ final class AbstractMetadataConfigurationTest extends TestCase
         $configuration->mapField('name');
     }
 
-    public function testGetMappingForMissingFieldReturnsNull(): void
+    public function testGetMappingForMissingFieldThrowsException(): void
     {
         $configuration = new TestMetadataConfiguration();
 
         self::assertFalse($configuration->hasMapping('missing'));
-        self::assertSame([], $configuration->getMapping('missing'));
+
+        $this->expectException(MappingException::class);
+        $configuration->getMapping('missing');
     }
 
     public function testSerializationRoundTrip(): void

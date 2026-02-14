@@ -29,12 +29,21 @@ class MappingException extends RuntimeException implements ExceptionInterface
         ));
     }
 
-    public static function missingAnnotation(string $className, string $field, string $annotationClass): self
+    public static function missingAttribute(string $className, string $field, string $attributeClass): self
     {
-        return new self(\sprintf('Class "%s" has no required annotation "%s" at field "%s".',
+        return new self(\sprintf('Class "%s" has no required attribute "%s" at field "%s".',
             $className,
-            $annotationClass,
+            $attributeClass,
             $field
+        ));
+    }
+
+    public static function invalidFieldName(string $declaredField, string $originalField): self
+    {
+        return new self(\sprintf(
+            'Embedded field names cannot contain dots. Got declaredField="%s", originalField="%s".',
+            $declaredField,
+            $originalField
         ));
     }
 }

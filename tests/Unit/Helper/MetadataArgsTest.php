@@ -8,7 +8,6 @@ use ChamberOrchestra\MetadataBundle\Helper\MetadataArgs;
 use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Entity\SimpleEntity;
 use Tests\Fixtures\Mapping\NamedMetadataConfiguration;
@@ -20,20 +19,20 @@ final class MetadataArgsTest extends TestCase
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $extensionMetadata = $this->createStub(ExtensionMetadataInterface::class);
-        $configuration = new NamedMetadataConfiguration(SimpleEntity::class);
+        $configuration = new NamedMetadataConfiguration('App\\Entity\\CustomName');
         $entity = new SimpleEntity();
-        $classMetadata = new ClassMetadata(SimpleEntity::class);
+        $classMetadata = new ClassMetadata('App\\Entity\\CustomName');
 
         $entityManager
             ->expects(self::once())
             ->method('getClassMetadata')
-            ->with(SimpleEntity::class)
+            ->with('App\\Entity\\CustomName')
             ->willReturn($classMetadata);
 
         $args = new MetadataArgs($entityManager, $extensionMetadata, $configuration, $entity);
 
-        self::assertSame($classMetadata, $this->readClassMetadata($args));
-        self::assertSame($classMetadata, $this->readClassMetadata($args));
+        self::assertSame($classMetadata, $args->getClassMetadata());
+        self::assertSame($classMetadata, $args->getClassMetadata());
     }
 
     public function testResolvesClassMetadataFromEntityInstance(): void
@@ -52,18 +51,7 @@ final class MetadataArgsTest extends TestCase
 
         $args = new MetadataArgs($entityManager, $extensionMetadata, $configuration, $entity);
 
-        self::assertSame($classMetadata, $this->readClassMetadata($args));
-        self::assertSame($classMetadata, $this->readClassMetadata($args));
-    }
-
-    private function readClassMetadata(MetadataArgs $args): ClassMetadata
-    {
-        $reader = function (MetadataArgs $args): ClassMetadata {
-            return $args->classMetadata;
-        };
-
-        $getter = $reader->bindTo($args, MetadataArgs::class);
-
-        return $getter($args);
+        self::assertSame($classMetadata, $args->getClassMetadata());
+        self::assertSame($classMetadata, $args->getClassMetadata());
     }
 }

@@ -8,7 +8,7 @@ A Symfony bundle that augments Doctrine ORM entities with extension metadata. It
 
 Core requirements (see `composer.json`):
 
-- PHP 8.4
+- PHP 8.5
 - Symfony 8.0 components: `dependency-injection`, `config`, `framework-bundle`, `runtime`, `options-resolver`
 - Doctrine ORM 3.x and Doctrine Bundle 3.2
 

@@ -10,6 +10,7 @@ use Tests\Fixtures\Attributes\ExampleClassAttribute;
 use Tests\Fixtures\Attributes\ExamplePropertyAttribute;
 use Tests\Fixtures\Entity\ClassAttributedEntity;
 use Tests\Fixtures\Entity\PropertyAttributedEntity;
+use Tests\Fixtures\Entity\SimpleEntity;
 
 final class AttributeReaderTest extends TestCase
 {
@@ -33,5 +34,29 @@ final class AttributeReaderTest extends TestCase
 
         self::assertNotEmpty($attributes);
         self::assertInstanceOf(ExamplePropertyAttribute::class, $reader->getPropertyAttribute($reflection, ExamplePropertyAttribute::class));
+    }
+
+    public function testReturnsNullForMissingClassAttribute(): void
+    {
+        $reader = new AttributeReader();
+        $reflection = new \ReflectionClass(SimpleEntity::class);
+
+        self::assertNull($reader->getClassAttribute($reflection, ExampleClassAttribute::class));
+    }
+
+    public function testReturnsNullForMissingPropertyAttribute(): void
+    {
+        $reader = new AttributeReader();
+        $reflection = new \ReflectionProperty(SimpleEntity::class, 'name');
+
+        self::assertNull($reader->getPropertyAttribute($reflection, ExamplePropertyAttribute::class));
+    }
+
+    public function testReturnsEmptyArrayForClassWithNoAttributes(): void
+    {
+        $reader = new AttributeReader();
+        $reflection = new \ReflectionClass(SimpleEntity::class);
+
+        self::assertSame([], $reader->getClassAttributes($reflection));
     }
 }

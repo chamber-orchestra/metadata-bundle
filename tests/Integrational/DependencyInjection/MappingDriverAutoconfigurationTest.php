@@ -19,18 +19,17 @@ final class MappingDriverAutoconfigurationTest extends KernelTestCase
 
     public function testAutoconfiguredDriverIsInjectedIntoFactory(): void
     {
-        TrackingMappingDriver::reset();
-
         self::bootKernel();
 
         $container = static::getContainer();
         $entityManager = $container->get('doctrine')->getManager();
         $factory = $container->get(ExtensionMetadataFactory::class);
+        $driver = $container->get(TrackingMappingDriver::class);
 
         $metadata = $entityManager->getClassMetadata(Article::class);
         $factory->getMetadataFor($entityManager, $metadata);
 
-        self::assertGreaterThan(0, TrackingMappingDriver::$supportsCalls);
-        self::assertGreaterThan(0, TrackingMappingDriver::$loadCalls);
+        self::assertGreaterThan(0, $driver->supportsCalls);
+        self::assertGreaterThan(0, $driver->loadCalls);
     }
 }

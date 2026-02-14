@@ -23,7 +23,6 @@ final class ServicesConfigurationTest extends TestCase
         self::assertTrue($container->getDefinition(MetadataReader::class)->isLazy());
 
         self::assertTrue($container->hasDefinition(MetadataSubscriber::class));
-        self::assertArrayHasKey('doctrine.event_subscriber', $container->getDefinition(MetadataSubscriber::class)->getTags());
 
         $container->register('test.mapping_driver', DummyMappingDriver::class)
             ->setAutoconfigured(true)

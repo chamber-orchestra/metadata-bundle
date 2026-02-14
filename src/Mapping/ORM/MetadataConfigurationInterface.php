@@ -15,6 +15,8 @@ interface MetadataConfigurationInterface
 {
     public function mapField(string $fieldName, array $mapping = []): void;
 
+    public function mapEmbeddedField(string $class, string $declaredField, string $originalField, array $mapping = []): void;
+
     public function getMappings(): array;
 
     /**
@@ -30,8 +32,4 @@ interface MetadataConfigurationInterface
     public function getFieldNames(): array;
 
     public function getMapping(string $fieldName): array;
-
-    public function __serialize(): array;
-
-    public function __unserialize(array $data): void;
 }

@@ -24,10 +24,7 @@ abstract class AbstractDoctrineListener
      */
     protected function getScheduledEntityInsertions(EntityManagerInterface $em, string $class): array
     {
-        return \array_map(fn(object $entity) => $this->args($em, $entity, $class), \array_filter(
-            $em->getUnitOfWork()->getScheduledEntityInsertions(),
-            fn(object $entity): bool => null !== $this->getConfiguration($em, $entity, $class)
-        ));
+        return $this->collectArgs($em->getUnitOfWork()->getScheduledEntityInsertions(), $em, $class);
     }
 
     /**
@@ -35,10 +32,7 @@ abstract class AbstractDoctrineListener
      */
     protected function getScheduledEntityUpdates(EntityManagerInterface $em, string $class): array
     {
-        return \array_map(fn(object $entity) => $this->args($em, $entity, $class), \array_filter(
-            $em->getUnitOfWork()->getScheduledEntityUpdates(),
-            fn(object $entity): bool => null !== $this->getConfiguration($em, $entity, $class)
-        ));
+        return $this->collectArgs($em->getUnitOfWork()->getScheduledEntityUpdates(), $em, $class);
     }
 
     /**
@@ -46,16 +40,24 @@ abstract class AbstractDoctrineListener
      */
     protected function getScheduledEntityDeletions(EntityManagerInterface $em, string $class): array
     {
-        return \array_map(fn(object $entity) => $this->args($em, $entity, $class), \array_filter(
-            $em->getUnitOfWork()->getScheduledEntityDeletions(),
-            fn(object $entity): bool => null !== $this->getConfiguration($em, $entity, $class)
-        ));
+        return $this->collectArgs($em->getUnitOfWork()->getScheduledEntityDeletions(), $em, $class);
     }
 
-    protected function args(EntityManagerInterface $em, object $entity, string $class): MetadataArgs
+    /**
+     * @return MetadataArgs[]
+     */
+    private function collectArgs(array $entities, EntityManagerInterface $em, string $class): array
     {
-        $metadata = $this->reader->getExtensionMetadata($em, ClassUtils::getClass($entity));
+        $reader = $this->requireReader();
+        $result = [];
+        foreach ($entities as $entity) {
+            $metadata = $reader->getExtensionMetadata($em, ClassUtils::getClass($entity));
+            $configuration = $metadata->getConfiguration($class);
+            if (null !== $configuration) {
+                $result[] = new MetadataArgs($em, $metadata, $configuration, $entity);
+            }
+        }
 
-        return new MetadataArgs($em, $metadata, $metadata->getConfiguration($class), $entity);
+        return $result;
     }
 }

@@ -15,14 +15,6 @@ use Tests\Fixtures\Mapping\TestMetadataConfiguration;
 
 final class MetadataReaderTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $property = new \ReflectionProperty(MetadataReader::class, 'configurations');
-        $property->setValue(null, []);
-    }
-
     public function testLoadsAndCachesMetadata(): void
     {
         $metadata = new ClassMetadata(SimpleEntity::class);
@@ -36,7 +28,7 @@ final class MetadataReaderTest extends TestCase
             ->willReturn($extensionMetadata);
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
-        $entityManager->method('getClassMetadata')->with(SimpleEntity::class)->willReturn($metadata);
+        $entityManager->method('getClassMetadata')->willReturn($metadata);
 
         $reader = new MetadataReader($factory);
 
@@ -45,6 +37,35 @@ final class MetadataReaderTest extends TestCase
 
         self::assertSame($extensionMetadata, $first);
         self::assertSame($extensionMetadata, $second);
+    }
+
+    public function testIsolatesCacheByEntityManager(): void
+    {
+        $metadata = new ClassMetadata(SimpleEntity::class);
+
+        $extensionMetadata1 = $this->createStub(ExtensionMetadataInterface::class);
+        $extensionMetadata2 = $this->createStub(ExtensionMetadataInterface::class);
+
+        $factory = $this->createMock(ExtensionMetadataFactory::class);
+        $factory
+            ->expects(self::exactly(2))
+            ->method('getMetadataFor')
+            ->willReturnOnConsecutiveCalls($extensionMetadata1, $extensionMetadata2);
+
+        $em1 = $this->createStub(EntityManagerInterface::class);
+        $em1->method('getClassMetadata')->willReturn($metadata);
+
+        $em2 = $this->createStub(EntityManagerInterface::class);
+        $em2->method('getClassMetadata')->willReturn($metadata);
+
+        $reader = new MetadataReader($factory);
+
+        $fromEm1 = $reader->getExtensionMetadata($em1, SimpleEntity::class);
+        $fromEm2 = $reader->getExtensionMetadata($em2, SimpleEntity::class);
+
+        self::assertSame($extensionMetadata1, $fromEm1);
+        self::assertSame($extensionMetadata2, $fromEm2);
+        self::assertNotSame($fromEm1, $fromEm2);
     }
 
     public function testGetsExtensionConfiguration(): void
@@ -66,7 +87,7 @@ final class MetadataReaderTest extends TestCase
             ->willReturn($extensionMetadata);
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
-        $entityManager->method('getClassMetadata')->with(SimpleEntity::class)->willReturn($metadata);
+        $entityManager->method('getClassMetadata')->willReturn($metadata);
 
         $reader = new MetadataReader($factory);
 

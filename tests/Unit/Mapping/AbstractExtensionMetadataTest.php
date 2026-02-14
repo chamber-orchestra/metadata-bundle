@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Mapping;
 
+use ChamberOrchestra\MetadataBundle\Exception\LogicException;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadata;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -101,6 +102,36 @@ final class AbstractExtensionMetadataTest extends TestCase
         self::assertSame('accessed', $extensionMetadata->getFieldValue($entity, 'name'));
         self::assertSame(1, $metadata->setCalls);
         self::assertSame(1, $metadata->getCalls);
+    }
+
+    public function testSetFieldValueThrowsForUnmappedField(): void
+    {
+        $metadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches('/not mapped/');
+
+        $metadata->setFieldValue(new SimpleEntity(), 'nonexistent', 'value');
+    }
+
+    public function testGetFieldValueThrowsForUnmappedField(): void
+    {
+        $metadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches('/not mapped/');
+
+        $metadata->getFieldValue(new SimpleEntity(), 'nonexistent');
+    }
+
+    public function testWakeupThrowsOnMetadataMismatch(): void
+    {
+        $metadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessageMatches('/Metadata class mismatch/');
+
+        $metadata->wakeup(new ClassMetadata(EntityWithEmbedded::class), new RuntimeReflectionService());
     }
 }
 

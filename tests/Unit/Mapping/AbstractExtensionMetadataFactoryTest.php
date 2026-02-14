@@ -10,6 +10,7 @@ use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadata;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata as OrmClassMetadata;
+use Doctrine\ORM\Mapping\EmbeddedClassMapping;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -20,19 +21,7 @@ final class AbstractExtensionMetadataFactoryTest extends TestCase
 {
     public function testCachesLoadedMetadataInMemory(): void
     {
-        $factory = new class() extends AbstractExtensionMetadataFactory {
-            public int $loadCalls = 0;
-
-            protected function doLoadMetadata(ExtensionMetadataInterface $class): void
-            {
-                $this->loadCalls++;
-            }
-
-            protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
-            {
-                return new ExtensionMetadata($metadata);
-            }
-        };
+        $factory = new TestExtensionMetadataFactory();
 
         $configuration = new Configuration();
 
@@ -59,7 +48,7 @@ final class AbstractExtensionMetadataFactoryTest extends TestCase
 
         $metadata = new OrmClassMetadata(EntityWithEmbedded::class);
         $metadata->embeddedClasses = [
-            'embedded' => ['class' => EmbeddedValue::class],
+            'embedded' => new EmbeddedClassMapping(EmbeddedValue::class),
         ];
 
         $embeddedMetadata = new OrmClassMetadata(EmbeddedValue::class);
@@ -70,27 +59,7 @@ final class AbstractExtensionMetadataFactoryTest extends TestCase
             ->with(EmbeddedValue::class)
             ->willReturn($embeddedMetadata);
 
-        $factory = new class() extends AbstractExtensionMetadataFactory {
-            public int $loadCalls = 0;
-            public int $wakeupCalls = 0;
-
-            protected function doLoadMetadata(ExtensionMetadataInterface $class): void
-            {
-                $this->loadCalls++;
-            }
-
-            protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
-            {
-                return new ExtensionMetadata($metadata);
-            }
-
-            protected function wakeup(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
-            {
-                $this->wakeupCalls++;
-
-                parent::wakeup($em, $classMetadata, $extensionMetadata);
-            }
-        };
+        $factory = new TestExtensionMetadataFactory();
 
         $first = $factory->getMetadataFor($entityManager, $metadata);
 
@@ -98,32 +67,44 @@ final class AbstractExtensionMetadataFactoryTest extends TestCase
         self::assertSame(0, $factory->wakeupCalls);
         self::assertArrayHasKey('embedded', $first->getEmbeddedMetadata());
 
-        $secondFactory = new class() extends AbstractExtensionMetadataFactory {
-            public int $loadCalls = 0;
-            public int $wakeupCalls = 0;
-
-            protected function doLoadMetadata(ExtensionMetadataInterface $class): void
-            {
-                $this->loadCalls++;
-            }
-
-            protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
-            {
-                return new ExtensionMetadata($metadata);
-            }
-
-            protected function wakeup(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
-            {
-                $this->wakeupCalls++;
-
-                parent::wakeup($em, $classMetadata, $extensionMetadata);
-            }
-        };
+        $secondFactory = new TestExtensionMetadataFactory();
 
         $second = $secondFactory->getMetadataFor($entityManager, $metadata);
 
         self::assertSame(0, $secondFactory->loadCalls);
         self::assertSame(2, $secondFactory->wakeupCalls);
         self::assertArrayHasKey('embedded', $second->getEmbeddedMetadata());
+
+        // Verify metadata is functionally usable after cache restoration
+        self::assertSame(EntityWithEmbedded::class, $second->getName());
+        self::assertSame(EntityWithEmbedded::class, $second->getOriginMetadata()->getName());
+    }
+}
+
+final class TestExtensionMetadataFactory extends AbstractExtensionMetadataFactory
+{
+    public int $loadCalls = 0;
+    public int $wakeupCalls = 0;
+
+    protected function doLoadMetadata(ExtensionMetadataInterface $class): void
+    {
+        $this->loadCalls++;
+    }
+
+    protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
+    {
+        return new ExtensionMetadata($metadata);
+    }
+
+    protected function getCacheNamespace(): string
+    {
+        return 'TestFactory';
+    }
+
+    protected function wakeup(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
+    {
+        $this->wakeupCalls++;
+
+        parent::wakeup($em, $classMetadata, $extensionMetadata);
     }
 }

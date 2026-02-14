@@ -26,7 +26,7 @@ final class AbstractMappingDriverTest extends TestCase
             {
             }
 
-            protected function getClassAnnotation(): ?string
+            protected function getClassAttribute(): ?string
             {
                 return ExampleClassAttribute::class;
             }
@@ -44,7 +44,7 @@ final class AbstractMappingDriverTest extends TestCase
             {
             }
 
-            protected function getPropertyAnnotation(): ?string
+            protected function getPropertyAttribute(): ?string
             {
                 return ExamplePropertyAttribute::class;
             }
@@ -62,7 +62,7 @@ final class AbstractMappingDriverTest extends TestCase
             {
             }
 
-            protected function getPropertyAnnotation(): ?string
+            protected function getPropertyAttribute(): ?string
             {
                 return ExamplePropertyAttribute::class;
             }
@@ -80,7 +80,7 @@ final class AbstractMappingDriverTest extends TestCase
             {
             }
 
-            protected function getClassAnnotation(): ?string
+            protected function getClassAttribute(): ?string
             {
                 return ExampleClassAttribute::class;
             }

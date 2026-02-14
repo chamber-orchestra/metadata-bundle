@@ -1,14 +1,15 @@
 {
   "name": "chamber-orchestra/metadata-bundle",
   "type": "library",
-  "description": "The symfony metadata bundle",
+  "description": "Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata",
   "keywords": [
     "symfony",
-    "metadata-bundle",
+    "doctrine",
+    "orm",
     "metadata",
-    "api",
-    "json",
-    "typescript"
+    "attributes",
+    "mapping",
+    "extension"
   ],
   "license": "MIT",
   "authors": [

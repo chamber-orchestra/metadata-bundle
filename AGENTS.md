@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This is a PHP 8.4 library with PSR-4 autoloading (`Dev\\MetadataBundle\\` mapped to the repo root).
+This is a PHP 8.5 library with PSR-4 autoloading (`Dev\\MetadataBundle\\` mapped to the repo root).
 Key directories:
 - `src/` holds the library code, organized by feature areas such as `DependencyInjection/`, `EventSubscriber/`, `Mapping/`, and `Reader/`.
 - `src/Resources/` contains framework resources and configuration assets.

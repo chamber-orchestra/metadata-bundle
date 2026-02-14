@@ -1,38 +1,133 @@
 [![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
 
-# Chamber Orchestra Metadata Bundle
+# Doctrine ORM Extension Metadata Bundle for Symfony
 
-A Symfony bundle that augments Doctrine ORM entities with extension metadata. It provides a metadata factory/reader, mapping drivers, and subscriber hooks to load custom mapping configuration during Doctrine metadata loading.
+A Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata. It provides a cacheable mapping layer, embedded entity support, and event-driven architecture for building reusable Doctrine extensions.
 
-## Dependencies
+## Features
 
-Core requirements (see `composer.json`):
+- **Attribute-based mapping** — define custom metadata using native PHP attributes on entity classes and properties
+- **PSR-6 metadata caching** — multi-level cache (PSR-6 + in-memory) with serialization support for production performance
+- **Embedded entity support** — automatic metadata resolution for Doctrine embeddables with lazy field initialization
+- **Autoconfigured mapping drivers** — implement `MappingDriverInterface` and drivers are auto-tagged via Symfony DI
+- **Doctrine event integration** — hooks into `loadClassMetadata` to load extension metadata alongside Doctrine's own metadata
+- **Multiple EntityManager support** — cache isolation per EntityManager via `spl_object_id` scoping
 
-- PHP 8.4
-- Symfony 8.0 components: `dependency-injection`, `config`, `framework-bundle`, `runtime`, `options-resolver`
-- Doctrine ORM 3.x and Doctrine Bundle 3.2
+## How It Works
 
-Development:
+### 1. Define a Mapping Driver
 
-- PHPUnit 12.5
-- Symfony Test Pack
+Create a mapping driver by extending `AbstractMappingDriver`. Override `getClassAttribute()` or `getPropertyAttribute()` to declare which PHP attributes your extension requires:
 
-Install dependencies with:
+```php
+use ChamberOrchestra\MetadataBundle\Mapping\Driver\AbstractMappingDriver;
+use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
+
+class TimestampableDriver extends AbstractMappingDriver
+{
+    protected function getClassAttribute(): string|null
+    {
+        return Timestampable::class;
+    }
+
+    public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
+    {
+        // Read attributes and populate your metadata configuration
+    }
+}
+```
+
+Drivers implementing `MappingDriverInterface` are automatically tagged and registered by the bundle.
+
+### 2. Create a Metadata Factory
+
+Extend `AbstractExtensionMetadataFactory` to define how your extension metadata is created and loaded:
+
+```php
+use ChamberOrchestra\MetadataBundle\Mapping\AbstractExtensionMetadataFactory;
+use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
+use Doctrine\Persistence\Mapping\ClassMetadata;
+
+class TimestampableMetadataFactory extends AbstractExtensionMetadataFactory
+{
+    protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
+    {
+        return new ExtensionMetadata($metadata);
+    }
+
+    protected function doLoadMetadata(ExtensionMetadataInterface $class): void
+    {
+        // Delegate to your mapping drivers
+    }
+}
+```
+
+### 3. React to Doctrine Events
+
+Use `AbstractDoctrineListener` to access extension metadata during Doctrine lifecycle events:
+
+```php
+use ChamberOrchestra\MetadataBundle\EventSubscriber\AbstractDoctrineListener;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Events;
+
+#[AsDoctrineListener(event: Events::prePersist)]
+class TimestampableListener extends AbstractDoctrineListener
+{
+    public function prePersist(PrePersistEventArgs $args): void
+    {
+        foreach ($this->getScheduledEntityInsertions($args->getEntityManager(), TimestampableConfiguration::class) as $metadataArgs) {
+            $metadataArgs->extensionMetadata->setFieldValue(
+                $metadataArgs->entity,
+                'createdAt',
+                new \DateTimeImmutable()
+            );
+        }
+    }
+}
+```
+
+## Architecture
+
+```
+MetadataSubscriber (Doctrine loadClassMetadata event)
+  └── MetadataReader
+        └── AbstractExtensionMetadataFactory
+              ├── MappingDriverInterface[] (attribute-based mapping drivers)
+              ├── ExtensionMetadataInterface (per-entity extension metadata)
+              │     ├── MetadataConfigurationInterface[] (per-driver configurations)
+              │     └── Embedded metadata (recursive for embeddables)
+              └── PSR-6 Cache (serialized metadata storage)
+```
+
+## Requirements
+
+- PHP 8.5+
+- Symfony 8.0
+- Doctrine ORM 3.6+
+- Doctrine Bundle 3.2+
+
+## Installation
+
+```sh
+composer require chamber-orchestra/metadata-bundle
+```
+
+## Development
+
+Install dependencies:
 
 ```sh
 composer install
 ```
 
-## Running Tests
-
-Run the full test suite:
+Run the test suite:
 
 ```sh
-bin/phpunit
+composer test
 ```
 
-Run a focused subset by class or method:
+## License
 
-```sh
-bin/phpunit --filter SomeTest
-```
+MIT

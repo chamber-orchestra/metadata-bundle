@@ -16,9 +16,10 @@ return static function (ContainerConfigurator $container): void {
 
     $services->load('ChamberOrchestra\\MetadataBundle\\', '../../*')
         ->exclude([
+            '../../ChamberOrchestraMetadataBundle.php',
             '../../DependencyInjection',
             '../../Resources',
-            '../../ExceptionInterface',
+            '../../Exception',
             '../../Helper',
             '../../Mapping/AbstractExtensionMetadata.php',
             '../../Mapping/ORM/AbstractMetadataConfiguration.php',
@@ -28,6 +29,5 @@ return static function (ContainerConfigurator $container): void {
     $services->set(MetadataReader::class)
         ->lazy();
 
-    $services->set(MetadataSubscriber::class)
-        ->tag('doctrine.event_subscriber', ['priority' => -100]);
+    $services->set(MetadataSubscriber::class);
 };

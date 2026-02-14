@@ -20,23 +20,45 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
     {
     }
 
+    /**
+     * Returns true if this driver should process the given metadata.
+     *
+     * The entity is supported if:
+     *   1. It has both the required class-level AND property-level attributes
+     *      (when both getClassAttribute() and getPropertyAttribute() are overridden), OR
+     *   2. Embedded support is enabled and any embedded metadata is supported.
+     *
+     * When getClassAttribute() or getPropertyAttribute() returns null,
+     * that check is treated as unconditionally passing.
+     */
     public function supports(ExtensionMetadataInterface $metadata): bool
     {
+        return $this->doSupports($metadata, []);
+    }
+
+    private function doSupports(ExtensionMetadataInterface $metadata, array $visited): bool
+    {
         if ($this->supportsEmbedded()) {
-            if (\array_any($metadata->getEmbeddedMetadata(), fn(ExtensionMetadataInterface $embeddedMetadata) => $this->supports($embeddedMetadata))) {
+            $className = $metadata->getName();
+            if (isset($visited[$className])) {
+                return false;
+            }
+            $visited[$className] = true;
+
+            if (\array_any($metadata->getEmbeddedMetadata(), fn(ExtensionMetadataInterface $embeddedMetadata) => $this->doSupports($embeddedMetadata, $visited))) {
                 return true;
             }
         }
 
-        return $this->supportsByClassAttribute($metadata) && $this->supportsByPropertyAnnotation($metadata);
+        return $this->supportsByClassAttribute($metadata) && $this->supportsByPropertyAttribute($metadata);
     }
 
-    protected function getClassAnnotation(): string|null
+    protected function getClassAttribute(): string|null
     {
         return null;
     }
 
-    protected function getPropertyAnnotation(): string|null
+    protected function getPropertyAttribute(): string|null
     {
         return null;
     }
@@ -48,22 +70,37 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
 
     private function supportsByClassAttribute(ExtensionMetadataInterface $metadata): bool
     {
-        if (null === ($annotation = $this->getClassAnnotation())) {
-            return true;
-        }
-
-        return null !== $this->reader->getClassAttribute($metadata->getOriginMetadata()->getReflectionClass(), $annotation);
-    }
-
-    private function supportsByPropertyAnnotation(ExtensionMetadataInterface $metadata): bool
-    {
-        if (null === ($annotation = $this->getPropertyAnnotation())) {
+        if (null === ($attribute = $this->getClassAttribute())) {
             return true;
         }
 
         $reflection = $metadata->getOriginMetadata()->getReflectionClass();
-        $properties = $reflection->getProperties();
+        if (null === $reflection) {
+            return false;
+        }
 
-        return \array_any($properties, fn($property) => null !== $this->reader->getPropertyAttribute($property, $annotation));
+        return null !== $this->reader->getClassAttribute($reflection, $attribute);
+    }
+
+    private function supportsByPropertyAttribute(ExtensionMetadataInterface $metadata): bool
+    {
+        if (null === ($attribute = $this->getPropertyAttribute())) {
+            return true;
+        }
+
+        if (null === ($reflection = $metadata->getOriginMetadata()->getReflectionClass())) {
+            return false;
+        }
+
+        foreach ($reflection->getProperties() as $property) {
+            if ($property->getDeclaringClass()->getName() !== $reflection->getName()) {
+                continue;
+            }
+            if (null !== $this->reader->getPropertyAttribute($property, $attribute)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

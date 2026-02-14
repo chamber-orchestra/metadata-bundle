@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ChamberOrchestra\MetadataBundle\Helper;
 
 use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
+use ChamberOrchestra\MetadataBundle\Mapping\ORM\EntityNameAwareInterface;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\MetadataConfigurationInterface;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,15 +20,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 
 class MetadataArgs
 {
-    public ClassMetadata|null $classMetadata = null {
-        get {
-            $name = \method_exists($this->configuration, 'getEntityName')
-                ? $this->configuration->getEntityName()
-                : ClassUtils::getClass($this->entity);
-
-            return $this->classMetadata ??= $this->entityManager->getClassMetadata($name);
-        }
-    }
+    private ClassMetadata|null $resolvedClassMetadata = null;
 
     public function __construct(
         public readonly EntityManagerInterface $entityManager,
@@ -37,4 +30,16 @@ class MetadataArgs
     ) {
     }
 
+    public function getClassMetadata(): ClassMetadata
+    {
+        if (null !== $this->resolvedClassMetadata) {
+            return $this->resolvedClassMetadata;
+        }
+
+        $name = $this->configuration instanceof EntityNameAwareInterface
+            ? $this->configuration->getEntityName()
+            : ClassUtils::getClass($this->entity);
+
+        return $this->resolvedClassMetadata = $this->entityManager->getClassMetadata($name);
+    }
 }

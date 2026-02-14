@@ -22,7 +22,7 @@ class MetadataReader
     /**
      * @var ExtensionMetadataInterface[]
      */
-    private static array $configurations = [];
+    private array $configurations = [];
 
     public function __construct(private readonly ExtensionMetadataFactory $factory)
     {
@@ -30,22 +30,45 @@ class MetadataReader
 
     public function loadExtensionMetadata(EntityManagerInterface $em, ClassMetadata $metadata): void
     {
-        if (isset(self::$configurations[$name = $metadata->getName()])) {
+        $key = \spl_object_id($em) . '#' . $metadata->getName();
+        if (isset($this->configurations[$key])) {
             return;
         }
 
         $config = $this->factory->getMetadataFor($em, $metadata);
-        self::$configurations[$name] = $config;
+        $this->configurations[$key] = $config;
     }
 
+    /**
+     * Returns extension metadata for the given entity class, loading it on first access.
+     *
+     * Subsequent calls for the same EM and class return the cached instance.
+     */
     public function getExtensionMetadata(EntityManagerInterface $em, string $class): ExtensionMetadataInterface
     {
+        $key = \spl_object_id($em) . '#' . $class;
+        if (isset($this->configurations[$key])) {
+            return $this->configurations[$key];
+        }
+
+        // Resolve canonical class name (handles proxies, aliases, etc.)
         $metadata = $em->getClassMetadata($class);
-        if (!isset(self::$configurations[$name = $metadata->getName()])) {
+        $canonicalClass = $metadata->getName();
+
+        // If the input class is already canonical, avoid duplicate cache entry
+        if ($class === $canonicalClass) {
+            $this->loadExtensionMetadata($em, $metadata);
+
+            return $this->configurations[$key];
+        }
+
+        // For aliases/proxies, ensure canonical key exists, then alias it
+        $resolvedKey = \spl_object_id($em) . '#' . $canonicalClass;
+        if (!isset($this->configurations[$resolvedKey])) {
             $this->loadExtensionMetadata($em, $metadata);
         }
 
-        return self::$configurations[$name];
+        return $this->configurations[$key] = $this->configurations[$resolvedKey];
     }
 
     /**

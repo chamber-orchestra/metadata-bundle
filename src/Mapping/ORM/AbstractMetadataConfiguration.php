@@ -25,6 +25,10 @@ abstract class AbstractMetadataConfiguration implements MetadataConfigurationInt
 
     public function mapEmbeddedField(string $class, string $declaredField, string $originalField, array $mapping = []): void
     {
+        if (\str_contains($declaredField, '.') || \str_contains($originalField, '.')) {
+            throw MappingException::invalidFieldName($declaredField, $originalField);
+        }
+
         $this->mapField($declaredField.'.'.$originalField, \array_replace($mapping, [
             'declaredField' => $declaredField,
             'originalField' => $originalField,
@@ -39,7 +43,11 @@ abstract class AbstractMetadataConfiguration implements MetadataConfigurationInt
 
     public function getMapping(string $fieldName): array
     {
-        return $this->mappings[$fieldName] ?? [];
+        if (!isset($this->mappings[$fieldName])) {
+            throw MappingException::missingProperty(static::class, $fieldName, $fieldName);
+        }
+
+        return $this->mappings[$fieldName];
     }
 
     public function getMappings(): array

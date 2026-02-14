@@ -28,7 +28,7 @@ interface ExtensionMetadataInterface
     public function getEmbeddedMetadata(): array;
 
     /**
-     * @return ExtensionMetadataInterface[]
+     * @return iterable<string, ExtensionMetadataInterface>
      */
     public function getEmbeddedMetadataWithConfiguration(string $class): iterable;
 
@@ -38,11 +38,18 @@ interface ExtensionMetadataInterface
 
     public function addConfiguration(MetadataConfigurationInterface $configuration): void;
 
+    /**
+     * Restores runtime state after deserialization.
+     *
+     * Initializes ClassMetadata reference and reflection fields for this instance only.
+     * Does NOT recursively wake embedded metadata — that is the responsibility of
+     * AbstractExtensionMetadataFactory::wakeup().
+     */
     public function wakeup(ClassMetadata $metadata, ReflectionService $reflectionService): void;
 
     public function getOriginMetadata(): ClassMetadata;
 
-    public function setFieldValue(object $entity, string $field, $value): void;
+    public function setFieldValue(object $entity, string $field, mixed $value): void;
 
-    public function getFieldValue(object $entity, string $field);
+    public function getFieldValue(object $entity, string $field): mixed;
 }

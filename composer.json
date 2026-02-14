@@ -1,14 +1,15 @@
 {
   "name": "chamber-orchestra/metadata-bundle",
   "type": "library",
-  "description": "The symfony metadata bundle",
+  "description": "Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata",
   "keywords": [
     "symfony",
-    "metadata-bundle",
+    "doctrine",
+    "orm",
     "metadata",
-    "api",
-    "json",
-    "typescript"
+    "attributes",
+    "mapping",
+    "extension"
   ],
   "license": "MIT",
   "authors": [
@@ -20,18 +21,18 @@
     }
   ],
   "require": {
-    "php": "^8.4",
+    "php": "^8.5",
     "symfony/dependency-injection": "8.0.*",
     "symfony/config": "8.0.*",
     "symfony/framework-bundle": "8.0.*",
     "symfony/runtime": "8.0.*",
     "symfony/options-resolver": "8.0.*",
-    "doctrine/orm": "^3.0",
+    "doctrine/orm": "3.6.*",
     "doctrine/common": "^3.0",
     "doctrine/doctrine-bundle": "3.2.*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^12.5",
+    "phpunit/phpunit": "^13.0",
     "symfony/test-pack": "^1.2"
   },
   "autoload": {

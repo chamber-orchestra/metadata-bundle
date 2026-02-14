@@ -23,10 +23,10 @@ final class MappingExceptionTest extends TestCase
         self::assertSame('Class "Foo" has no property "bar" specified in property "baz"', $exception->getMessage());
     }
 
-    public function testMissingAnnotationMessage(): void
+    public function testMissingAttributeMessage(): void
     {
-        $exception = MappingException::missingAnnotation('Foo', 'bar', 'Baz');
+        $exception = MappingException::missingAttribute('Foo', 'bar', 'Baz');
 
-        self::assertSame('Class "Foo" has no required annotation "Baz" at field "bar".', $exception->getMessage());
+        self::assertSame('Class "Foo" has no required attribute "Baz" at field "bar".', $exception->getMessage());
     }
 }

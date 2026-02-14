@@ -34,8 +34,6 @@ final class TestKernel extends Kernel
         $container->extension('framework', [
             'secret' => 'test_secret',
             'test' => true,
-            'form' => true,
-            'serializer' => ['enabled' => true],
         ]);
         $container->extension('chamber_orchestra_metadata', []);
     }

@@ -19,7 +19,10 @@ use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 abstract class AbstractExtensionMetadataFactory
 {
     /**
-     * Salt used by specific Object Manager implementation.
+     * Cache key suffix to namespace extension metadata entries.
+     *
+     * The '$' prefix prevents collision with user-defined class names,
+     * as '$' is not a valid character in PHP identifiers.
      */
     private static string $cacheSalt = '$EXTENSIONMETADATA';
     /**
@@ -37,12 +40,15 @@ abstract class AbstractExtensionMetadataFactory
      */
     public function getMetadataFor(EntityManagerInterface $em, ClassMetadata $metadata): ExtensionMetadataInterface
     {
-        if (isset($this->loadedMetadata[$realClassName = $metadata->getName()])) {
-            return $this->loadedMetadata[$realClassName];
+        $key = \spl_object_id($em) . '#' . $metadata->getName();
+        if (isset($this->loadedMetadata[$key])) {
+            return $this->loadedMetadata[$key];
         }
 
         if ($cache = $em->getConfiguration()->getMetadataCache()) {
-            $item = $cache->getItem(self::sanitize($realClassName));
+            // Note: cache key does not include EM identity.
+            // If using multiple EntityManagers, ensure each has a separate metadata cache pool.
+            $item = $cache->getItem($this->sanitize($metadata->getName()));
 
             if ($item->isHit()) {
                 $this->wakeup($em, $metadata, $extensionMetadata = $item->get());
@@ -54,15 +60,17 @@ abstract class AbstractExtensionMetadataFactory
             $extensionMetadata = $this->loadMetadata($em, $metadata);
         }
 
-        return $this->loadedMetadata[$realClassName] = $extensionMetadata;
+        return $this->loadedMetadata[$key] = $extensionMetadata;
     }
 
     /**
      * Checks whether the factory has the metadata for a class loaded already.
      */
-    public function hasMetadataFor(string $className): bool
+    public function hasMetadataFor(EntityManagerInterface $em, string $className): bool
     {
-        return isset($this->loadedMetadata[$className]);
+        $key = \spl_object_id($em) . '#' . $className;
+
+        return isset($this->loadedMetadata[$key]);
     }
 
     /**
@@ -98,13 +106,18 @@ abstract class AbstractExtensionMetadataFactory
     {
         /** @var \Doctrine\ORM\Mapping\ClassMetadata $classMetadata */
         foreach ($classMetadata->embeddedClasses as $fieldName => $mapping) {
-            $embeddedMetadata = $em->getClassMetadata($mapping['class']);
+            $embeddedMetadata = $em->getClassMetadata($mapping->class);
             $extensionMetadata->addEmbeddedMetadata($fieldName, $this->getMetadataFor($em, $embeddedMetadata));
         }
     }
 
-    private static function sanitize(string $string): string
+    protected function getCacheNamespace(): string
     {
-        return \str_replace('\\', '_', $string).self::$cacheSalt;
+        return static::class;
+    }
+
+    private function sanitize(string $string): string
+    {
+        return \preg_replace('/[^a-zA-Z0-9._-]/', '_', $string . '.' . $this->getCacheNamespace()) . self::$cacheSalt;
     }
 }

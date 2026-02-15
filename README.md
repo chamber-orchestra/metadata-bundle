@@ -1,19 +1,28 @@
 [![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
+[![Latest Stable Version](https://poser.pugx.org/chamber-orchestra/metadata-bundle/v)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
+[![License](https://poser.pugx.org/chamber-orchestra/metadata-bundle/license)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
 
-# Doctrine ORM Extension Metadata Bundle for Symfony
+# ChamberOrchestra Metadata Bundle
 
-A Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata. It provides a cacheable mapping layer, embedded entity support, and event-driven architecture for building reusable Doctrine extensions.
+A Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata. Define PHP attributes on your entities and let autoconfigured mapping drivers turn them into cacheable, serializable metadata — with full support for embedded classes and multiple entity managers.
 
 ## Features
 
-- **Attribute-based mapping** — define custom metadata using native PHP attributes on entity classes and properties
-- **PSR-6 metadata caching** — multi-level cache (PSR-6 + in-memory) with serialization support for production performance
-- **Embedded entity support** — automatic metadata resolution for Doctrine embeddables with lazy field initialization
+- **PHP attribute-based mapping** — define custom metadata using native PHP 8 attributes on entity classes and properties
+- **Cacheable metadata** — multi-level cache (PSR-6 + in-memory) with serialization support for production performance
+- **Embedded entity support** — automatic recursive metadata resolution for Doctrine embeddables with lazy field initialization
 - **Autoconfigured mapping drivers** — implement `MappingDriverInterface` and drivers are auto-tagged via Symfony DI
 - **Doctrine event integration** — hooks into `loadClassMetadata` to load extension metadata alongside Doctrine's own metadata
 - **Multiple EntityManager support** — cache isolation per EntityManager via `spl_object_id` scoping
+- **Zero configuration** — install the bundle and start writing drivers; no YAML/XML configuration required
 
-## How It Works
+## Installation
+
+```sh
+composer require chamber-orchestra/metadata-bundle
+```
+
+## Quick Start
 
 ### 1. Define a Mapping Driver
 
@@ -101,6 +110,16 @@ MetadataSubscriber (Doctrine loadClassMetadata event)
               └── PSR-6 Cache (serialized metadata storage)
 ```
 
+### Key Abstractions
+
+| Class / Interface | Role |
+|---|---|
+| `MappingDriverInterface` | Extension point — implement to define attribute-driven metadata |
+| `AbstractMappingDriver` | Base driver with `AttributeReader` and `supports()` logic |
+| `MetadataConfigurationInterface` | Stores field mappings; serializable for Doctrine cache |
+| `AbstractDoctrineListener` | Base for Doctrine listeners that need extension metadata |
+| `MetadataArgs` | DTO bundling EntityManager, metadata, configuration, and entity |
+
 ## Requirements
 
 - PHP 8.5+
@@ -108,24 +127,11 @@ MetadataSubscriber (Doctrine loadClassMetadata event)
 - Doctrine ORM 3.6+
 - Doctrine Bundle 3.2+
 
-## Installation
-
-```sh
-composer require chamber-orchestra/metadata-bundle
-```
-
 ## Development
 
-Install dependencies:
-
 ```sh
-composer install
-```
-
-Run the test suite:
-
-```sh
-composer test
+composer install   # Install dependencies
+composer test      # Run the test suite
 ```
 
 ## License

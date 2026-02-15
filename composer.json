@@ -1,16 +1,22 @@
 {
   "name": "chamber-orchestra/metadata-bundle",
-  "type": "library",
-  "description": "Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata",
+  "type": "symfony-bundle",
+  "description": "Symfony bundle for extending Doctrine ORM entities with custom attribute-driven metadata — cacheable mapping, embedded entity support, and autoconfigured drivers",
   "keywords": [
     "symfony",
+    "symfony-bundle",
     "doctrine",
+    "doctrine-orm",
+    "doctrine-extensions",
     "orm",
     "metadata",
-    "attributes",
+    "php-attributes",
     "mapping",
+    "entity",
+    "embeddable",
     "extension"
   ],
+  "homepage": "https://github.com/chamber-orchestra/metadata-bundle",
   "license": "MIT",
   "authors": [
     {
@@ -20,13 +26,16 @@
       "role": "Developer"
     }
   ],
+  "support": {
+    "issues": "https://github.com/chamber-orchestra/metadata-bundle/issues",
+    "source": "https://github.com/chamber-orchestra/metadata-bundle"
+  },
   "require": {
     "php": "^8.5",
     "symfony/dependency-injection": "8.0.*",
     "symfony/config": "8.0.*",
     "symfony/framework-bundle": "8.0.*",
     "symfony/runtime": "8.0.*",
-    "symfony/options-resolver": "8.0.*",
     "doctrine/orm": "3.6.*",
     "doctrine/common": "^3.0",
     "doctrine/doctrine-bundle": "3.2.*"

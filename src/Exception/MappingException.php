@@ -11,13 +11,11 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\Exception;
 
-use RuntimeException;
-
-class MappingException extends RuntimeException implements ExceptionInterface
+class MappingException extends \RuntimeException implements ExceptionInterface
 {
     public static function duplicateFieldMapping(string $entity, string $fieldName): self
     {
-        return new self('Property "' . $fieldName . '" in "' . $entity . '" was already declared, but it must be declared only once');
+        return new self('Property "'.$fieldName.'" in "'.$entity.'" was already declared, but it must be declared only once');
     }
 
     public static function missingProperty(string $className, string $property, string $originProperty): self

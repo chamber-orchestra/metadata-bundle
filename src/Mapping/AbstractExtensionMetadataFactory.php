@@ -39,7 +39,7 @@ abstract class AbstractExtensionMetadataFactory
      */
     public function getMetadataFor(EntityManagerInterface $em, ClassMetadata $metadata): ExtensionMetadataInterface
     {
-        $key = \spl_object_id($em) . '#' . $metadata->getName();
+        $key = \spl_object_id($em).'#'.$metadata->getName();
         if (isset($this->loadedMetadata[$key])) {
             return $this->loadedMetadata[$key];
         }
@@ -70,7 +70,7 @@ abstract class AbstractExtensionMetadataFactory
      */
     public function hasMetadataFor(EntityManagerInterface $em, string $className): bool
     {
-        $key = \spl_object_id($em) . '#' . $className;
+        $key = \spl_object_id($em).'#'.$className;
 
         return isset($this->loadedMetadata[$key]);
     }
@@ -135,6 +135,6 @@ abstract class AbstractExtensionMetadataFactory
 
     private function sanitize(string $string): string
     {
-        return \preg_replace('/[^a-zA-Z0-9._-]/', '_', $string . '.' . $this->getCacheNamespace()) . self::$cacheSalt;
+        return \preg_replace('/[^a-zA-Z0-9._-]/', '_', $string.'.'.$this->getCacheNamespace()).self::$cacheSalt;
     }
 }

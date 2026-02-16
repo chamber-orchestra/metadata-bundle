@@ -1,4 +1,7 @@
 [![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
+[![PHP CS Fixer](https://img.shields.io/badge/PHP%20CS%20Fixer-enabled-brightgreen.svg)](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer)
+[![Code Style: PER-CS](https://img.shields.io/badge/code%20style-PER--CS-blue.svg)](https://www.php-fig.org/per/coding-style/)
+[![Code Style: Symfony](https://img.shields.io/badge/code%20style-Symfony-black.svg)](https://symfony.com/doc/current/contributing/code/standards.html)
 [![PHPStan Level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)](https://www.php.net/)
 [![Symfony 8.0](https://img.shields.io/badge/Symfony-8.0-000000.svg)](https://symfony.com/)

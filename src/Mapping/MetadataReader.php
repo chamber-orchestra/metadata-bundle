@@ -24,14 +24,16 @@ class MetadataReader
      */
     private array $configurations = [];
 
-    public function __construct(private readonly ExtensionMetadataFactory $factory) {}
+    public function __construct(private readonly ExtensionMetadataFactory $factory)
+    {
+    }
 
     /**
      * @param ClassMetadata<object> $metadata
      */
     public function loadExtensionMetadata(EntityManagerInterface $em, ClassMetadata $metadata): void
     {
-        $key = \spl_object_id($em) . '#' . $metadata->getName();
+        $key = \spl_object_id($em).'#'.$metadata->getName();
         if (isset($this->configurations[$key])) {
             return;
         }
@@ -47,7 +49,7 @@ class MetadataReader
      */
     public function getExtensionMetadata(EntityManagerInterface $em, string $class): ExtensionMetadataInterface
     {
-        $key = \spl_object_id($em) . '#' . $class;
+        $key = \spl_object_id($em).'#'.$class;
         if (isset($this->configurations[$key])) {
             return $this->configurations[$key];
         }
@@ -64,7 +66,7 @@ class MetadataReader
         }
 
         // For aliases/proxies, ensure canonical key exists, then alias it
-        $resolvedKey = \spl_object_id($em) . '#' . $canonicalClass;
+        $resolvedKey = \spl_object_id($em).'#'.$canonicalClass;
         if (!isset($this->configurations[$resolvedKey])) {
             $this->loadExtensionMetadata($em, $metadata);
         }

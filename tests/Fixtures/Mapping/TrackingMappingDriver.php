@@ -14,12 +14,12 @@ final class TrackingMappingDriver implements MappingDriverInterface
 
     public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
     {
-        $this->loadCalls++;
+        ++$this->loadCalls;
     }
 
     public function supports(ExtensionMetadataInterface $metadata): bool
     {
-        $this->supportsCalls++;
+        ++$this->supportsCalls;
 
         return true;
     }

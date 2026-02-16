@@ -88,7 +88,7 @@ final class TestExtensionMetadataFactory extends AbstractExtensionMetadataFactor
 
     protected function doLoadMetadata(ExtensionMetadataInterface $class): void
     {
-        $this->loadCalls++;
+        ++$this->loadCalls;
     }
 
     protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface
@@ -103,7 +103,7 @@ final class TestExtensionMetadataFactory extends AbstractExtensionMetadataFactor
 
     protected function wakeup(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
     {
-        $this->wakeupCalls++;
+        ++$this->wakeupCalls;
 
         parent::wakeup($em, $classMetadata, $extensionMetadata);
     }

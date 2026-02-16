@@ -30,7 +30,7 @@ abstract class AbstractMetadataConfiguration implements MetadataConfigurationInt
             throw MappingException::invalidFieldName($declaredField, $originalField);
         }
 
-        $this->mapField($declaredField . '.' . $originalField, \array_replace($mapping, [
+        $this->mapField($declaredField.'.'.$originalField, \array_replace($mapping, [
             'declaredField' => $declaredField,
             'originalField' => $originalField,
             'originalClass' => $class,

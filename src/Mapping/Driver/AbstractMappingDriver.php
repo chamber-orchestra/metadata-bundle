@@ -16,7 +16,9 @@ use ChamberOrchestra\MetadataBundle\Reader\AttributeReader;
 
 abstract class AbstractMappingDriver implements MappingDriverInterface
 {
-    public function __construct(protected readonly AttributeReader $reader) {}
+    public function __construct(protected readonly AttributeReader $reader)
+    {
+    }
 
     /**
      * Returns true if this driver should process the given metadata.
@@ -46,7 +48,7 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
             }
             $visited[$className] = true;
 
-            if (\array_any($metadata->getEmbeddedMetadata(), fn(ExtensionMetadataInterface $embeddedMetadata) => $this->doSupports($embeddedMetadata, $visited))) {
+            if (\array_any($metadata->getEmbeddedMetadata(), fn (ExtensionMetadataInterface $embeddedMetadata) => $this->doSupports($embeddedMetadata, $visited))) {
                 return true;
             }
         }

@@ -16,9 +16,7 @@ use ChamberOrchestra\MetadataBundle\Reader\AttributeReader;
 
 abstract class AbstractMappingDriver implements MappingDriverInterface
 {
-    public function __construct(protected readonly AttributeReader $reader)
-    {
-    }
+    public function __construct(protected readonly AttributeReader $reader) {}
 
     /**
      * Returns true if this driver should process the given metadata.
@@ -36,6 +34,9 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
         return $this->doSupports($metadata, []);
     }
 
+    /**
+     * @param array<string, true> $visited
+     */
     private function doSupports(ExtensionMetadataInterface $metadata, array $visited): bool
     {
         if ($this->supportsEmbedded()) {
@@ -53,12 +54,12 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
         return $this->supportsByClassAttribute($metadata) && $this->supportsByPropertyAttribute($metadata);
     }
 
-    protected function getClassAttribute(): string|null
+    protected function getClassAttribute(): ?string
     {
         return null;
     }
 
-    protected function getPropertyAttribute(): string|null
+    protected function getPropertyAttribute(): ?string
     {
         return null;
     }
@@ -75,9 +76,6 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
         }
 
         $reflection = $metadata->getOriginMetadata()->getReflectionClass();
-        if (null === $reflection) {
-            return false;
-        }
 
         return null !== $this->reader->getClassAttribute($reflection, $attribute);
     }
@@ -88,9 +86,7 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
             return true;
         }
 
-        if (null === ($reflection = $metadata->getOriginMetadata()->getReflectionClass())) {
-            return false;
-        }
+        $reflection = $metadata->getOriginMetadata()->getReflectionClass();
 
         foreach ($reflection->getProperties() as $property) {
             if ($property->getDeclaringClass()->getName() !== $reflection->getName()) {

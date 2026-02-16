@@ -8,8 +8,8 @@ use ChamberOrchestra\MetadataBundle\Mapping\Driver\AbstractMappingDriver;
 use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadata;
 use ChamberOrchestra\MetadataBundle\Reader\AttributeReader;
-use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Attributes\ExampleClassAttribute;
 use Tests\Fixtures\Attributes\ExamplePropertyAttribute;
@@ -21,10 +21,8 @@ final class AbstractMappingDriverTest extends TestCase
 {
     public function testSupportsByClassAttribute(): void
     {
-        $driver = new class(new AttributeReader()) extends AbstractMappingDriver {
-            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
-            {
-            }
+        $driver = new class (new AttributeReader()) extends AbstractMappingDriver {
+            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void {}
 
             protected function getClassAttribute(): ?string
             {
@@ -39,10 +37,8 @@ final class AbstractMappingDriverTest extends TestCase
 
     public function testSupportsByPropertyAttribute(): void
     {
-        $driver = new class(new AttributeReader()) extends AbstractMappingDriver {
-            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
-            {
-            }
+        $driver = new class (new AttributeReader()) extends AbstractMappingDriver {
+            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void {}
 
             protected function getPropertyAttribute(): ?string
             {
@@ -57,10 +53,8 @@ final class AbstractMappingDriverTest extends TestCase
 
     public function testDoesNotSupportWithoutRequiredAttribute(): void
     {
-        $driver = new class(new AttributeReader()) extends AbstractMappingDriver {
-            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
-            {
-            }
+        $driver = new class (new AttributeReader()) extends AbstractMappingDriver {
+            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void {}
 
             protected function getPropertyAttribute(): ?string
             {
@@ -75,10 +69,8 @@ final class AbstractMappingDriverTest extends TestCase
 
     public function testSupportsEmbeddedMetadataWhenEnabled(): void
     {
-        $driver = new class(new AttributeReader()) extends AbstractMappingDriver {
-            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
-            {
-            }
+        $driver = new class (new AttributeReader()) extends AbstractMappingDriver {
+            public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void {}
 
             protected function getClassAttribute(): ?string
             {

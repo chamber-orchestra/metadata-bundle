@@ -11,6 +11,4 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\Exception;
 
-class LogicException extends \LogicException implements ExceptionInterface
-{
-}
+class LogicException extends \LogicException implements ExceptionInterface {}

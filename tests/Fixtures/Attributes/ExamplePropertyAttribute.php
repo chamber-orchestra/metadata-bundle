@@ -8,6 +8,4 @@ use Attribute;
 use Doctrine\ORM\Mapping\MappingAttribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class ExamplePropertyAttribute implements MappingAttribute
-{
-}
+final class ExamplePropertyAttribute implements MappingAttribute {}

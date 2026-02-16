@@ -33,7 +33,7 @@ final class MetadataConfigurationTraitTest extends TestCase
             ->with($entityManager, SimpleEntity::class)
             ->willReturn($metadata);
 
-        $subject = new class() {
+        $subject = new class {
             use MetadataConfigurationTrait;
 
             public function getConfig(EntityManagerInterface $em, object $entity, string $class): ?TestMetadataConfiguration
@@ -51,7 +51,7 @@ final class MetadataConfigurationTraitTest extends TestCase
 
     public function testThrowsWhenReaderNotInjected(): void
     {
-        $subject = new class() {
+        $subject = new class {
             use MetadataConfigurationTrait;
 
             public function getConfig(EntityManagerInterface $em, object $entity, string $class): mixed

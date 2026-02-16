@@ -23,7 +23,7 @@ interface ExtensionMetadataInterface
     public function getName(): string;
 
     /**
-     * @return ExtensionMetadataInterface[]
+     * @return array<string, ExtensionMetadataInterface>
      */
     public function getEmbeddedMetadata(): array;
 
@@ -44,9 +44,14 @@ interface ExtensionMetadataInterface
      * Initializes ClassMetadata reference and reflection fields for this instance only.
      * Does NOT recursively wake embedded metadata — that is the responsibility of
      * AbstractExtensionMetadataFactory::wakeup().
+     *
+     * @param ClassMetadata<object> $metadata
      */
     public function wakeup(ClassMetadata $metadata, ReflectionService $reflectionService): void;
 
+    /**
+     * @return ClassMetadata<object>
+     */
     public function getOriginMetadata(): ClassMetadata;
 
     public function setFieldValue(object $entity, string $field, mixed $value): void;

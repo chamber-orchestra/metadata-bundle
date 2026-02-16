@@ -44,6 +44,8 @@ abstract class AbstractDoctrineListener
     }
 
     /**
+     * @param array<object> $entities
+     *
      * @return MetadataArgs[]
      */
     private function collectArgs(array $entities, EntityManagerInterface $em, string $class): array
@@ -51,7 +53,9 @@ abstract class AbstractDoctrineListener
         $reader = $this->requireReader();
         $result = [];
         foreach ($entities as $entity) {
-            $metadata = $reader->getExtensionMetadata($em, ClassUtils::getClass($entity));
+            /** @var class-string $entityClass */
+            $entityClass = ClassUtils::getClass($entity);
+            $metadata = $reader->getExtensionMetadata($em, $entityClass);
             $configuration = $metadata->getConfiguration($class);
             if (null !== $configuration) {
                 $result[] = new MetadataArgs($em, $metadata, $configuration, $entity);

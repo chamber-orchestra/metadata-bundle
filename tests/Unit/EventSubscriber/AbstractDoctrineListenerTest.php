@@ -19,8 +19,7 @@ final class AbstractDoctrineListenerTest extends TestCase
     public function testFiltersScheduledEntitiesByConfiguration(): void
     {
         $configuredEntity = new SimpleEntity();
-        $unconfiguredEntity = new class() {
-        };
+        $unconfiguredEntity = new class {};
 
         $configuration = new TestMetadataConfiguration();
         $configuredMetadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
@@ -48,7 +47,7 @@ final class AbstractDoctrineListenerTest extends TestCase
         $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getUnitOfWork')->willReturn($unitOfWork);
 
-        $listener = new class() extends AbstractDoctrineListener {
+        $listener = new class extends AbstractDoctrineListener {
             public function insertions(EntityManagerInterface $em, string $class): array
             {
                 return $this->getScheduledEntityInsertions($em, $class);

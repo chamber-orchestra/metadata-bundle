@@ -11,6 +11,4 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\Exception;
 
-interface ExceptionInterface
-{
-}
+interface ExceptionInterface {}

@@ -9,9 +9,7 @@ use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
 
 class DummyMappingDriver implements MappingDriverInterface
 {
-    public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void
-    {
-    }
+    public function loadMetadataForClass(ExtensionMetadataInterface $extensionMetadata): void {}
 
     public function supports(ExtensionMetadataInterface $metadata): bool
     {

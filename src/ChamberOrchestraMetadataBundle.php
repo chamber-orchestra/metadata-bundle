@@ -13,6 +13,4 @@ namespace ChamberOrchestra\MetadataBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class ChamberOrchestraMetadataBundle extends Bundle
-{
-}
+final class ChamberOrchestraMetadataBundle extends Bundle {}

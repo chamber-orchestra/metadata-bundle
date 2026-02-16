@@ -20,14 +20,12 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 class ExtensionMetadataFactory extends AbstractExtensionMetadataFactory
 {
     /**
-     * @var $drivers MappingDriverInterface[]
+     * @param iterable<MappingDriverInterface> $drivers
      */
     public function __construct(
         #[AutowireIterator('chamber_orchestra_metadata.mapping.driver')]
         private readonly iterable $drivers,
-    )
-    {
-    }
+    ) {}
 
     protected function doLoadMetadata(ExtensionMetadataInterface $class): void
     {

@@ -17,6 +17,8 @@ use Doctrine\ORM\Mapping\MappingAttribute;
 class AttributeReader
 {
     /**
+     * @param \ReflectionClass<object> $class
+     *
      * @return array<class-string, MappingAttribute>
      */
     public function getClassAttributes(\ReflectionClass $class): array
@@ -24,7 +26,10 @@ class AttributeReader
         return $this->convertAttributes($class->getAttributes(MappingAttribute::class, \ReflectionAttribute::IS_INSTANCEOF));
     }
 
-    public function getClassAttribute(\ReflectionClass $class, string $attributeName): MappingAttribute|null
+    /**
+     * @param \ReflectionClass<object> $class
+     */
+    public function getClassAttribute(\ReflectionClass $class, string $attributeName): ?MappingAttribute
     {
         return $this->getClassAttributes($class)[$attributeName] ?? null;
     }
@@ -37,7 +42,7 @@ class AttributeReader
         return $this->convertAttributes($method->getAttributes(MappingAttribute::class, \ReflectionAttribute::IS_INSTANCEOF));
     }
 
-    public function getMethodAttribute(\ReflectionMethod $method, string $attributeName): MappingAttribute|null
+    public function getMethodAttribute(\ReflectionMethod $method, string $attributeName): ?MappingAttribute
     {
         return $this->getMethodAttributes($method)[$attributeName] ?? null;
     }
@@ -50,13 +55,13 @@ class AttributeReader
         return $this->convertAttributes($property->getAttributes(MappingAttribute::class, \ReflectionAttribute::IS_INSTANCEOF));
     }
 
-    public function getPropertyAttribute(\ReflectionProperty $property, string $attributeName): MappingAttribute|null
+    public function getPropertyAttribute(\ReflectionProperty $property, string $attributeName): ?MappingAttribute
     {
         return $this->getPropertyAttributes($property)[$attributeName] ?? null;
     }
 
     /**
-     * @param \ReflectionAttribute[] $reflectionAttributes
+     * @param \ReflectionAttribute<MappingAttribute>[] $reflectionAttributes
      *
      * @return array<class-string, MappingAttribute>
      */

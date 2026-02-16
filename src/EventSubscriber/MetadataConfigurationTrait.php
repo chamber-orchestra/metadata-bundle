@@ -20,7 +20,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 trait MetadataConfigurationTrait
 {
-    protected MetadataReader|null $reader = null;
+    protected ?MetadataReader $reader = null;
 
     #[Required]
     public function setMetadataReader(MetadataReader $reader): void
@@ -40,7 +40,7 @@ trait MetadataConfigurationTrait
         return $this->reader;
     }
 
-    protected function getConfiguration(EntityManagerInterface $em, object $entity, string $class): MetadataConfigurationInterface|null
+    protected function getConfiguration(EntityManagerInterface $em, object $entity, string $class): ?MetadataConfigurationInterface
     {
         return $this->requireReader()->getExtensionMetadata($em, ClassUtils::getClass($entity))->getConfiguration($class);
     }

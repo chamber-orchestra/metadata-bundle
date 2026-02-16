@@ -8,7 +8,9 @@ use ChamberOrchestra\MetadataBundle\Mapping\ORM\EntityNameAwareInterface;
 
 class NamedMetadataConfiguration extends TestMetadataConfiguration implements EntityNameAwareInterface
 {
-    public function __construct(private readonly string $entityName) {}
+    public function __construct(private readonly string $entityName)
+    {
+    }
 
     public function getEntityName(): string
     {

@@ -28,7 +28,8 @@ class MetadataArgs
         public readonly ExtensionMetadataInterface $extensionMetadata,
         public readonly MetadataConfigurationInterface $configuration,
         public readonly object $entity
-    ) {}
+    ) {
+    }
 
     /**
      * @return ClassMetadata<object>

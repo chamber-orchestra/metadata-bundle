@@ -71,10 +71,7 @@ class AttributeReader
         foreach ($reflectionAttributes as $attr) {
             $name = $attr->getName();
             if (isset($result[$name])) {
-                throw new LogicException(\sprintf(
-                    'Duplicate attribute "%s" detected. This reader only supports single instances of each attribute type.',
-                    $name
-                ));
+                throw new LogicException(\sprintf('Duplicate attribute "%s" detected. This reader only supports single instances of each attribute type.', $name));
             }
             $result[$name] = $attr->newInstance();
         }

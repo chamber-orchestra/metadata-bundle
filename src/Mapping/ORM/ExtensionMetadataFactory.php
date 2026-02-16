@@ -25,7 +25,8 @@ class ExtensionMetadataFactory extends AbstractExtensionMetadataFactory
     public function __construct(
         #[AutowireIterator('chamber_orchestra_metadata.mapping.driver')]
         private readonly iterable $drivers,
-    ) {}
+    ) {
+    }
 
     protected function doLoadMetadata(ExtensionMetadataInterface $class): void
     {

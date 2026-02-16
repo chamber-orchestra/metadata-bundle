@@ -9,5 +9,7 @@ use Tests\Fixtures\Attributes\ExampleClassAttribute;
 #[ExampleClassAttribute]
 class ClassAttributedEntity
 {
-    public function __construct(public int $id = 1) {}
+    public function __construct(public int $id = 1)
+    {
+    }
 }

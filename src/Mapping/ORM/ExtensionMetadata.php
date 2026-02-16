@@ -13,4 +13,6 @@ namespace ChamberOrchestra\MetadataBundle\Mapping\ORM;
 
 use ChamberOrchestra\MetadataBundle\Mapping\AbstractExtensionMetadata;
 
-class ExtensionMetadata extends AbstractExtensionMetadata {}
+class ExtensionMetadata extends AbstractExtensionMetadata
+{
+}

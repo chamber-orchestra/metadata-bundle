@@ -68,11 +68,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
     public function wakeup(ClassMetadata $metadata, ReflectionService $reflectionService): void
     {
         if ($metadata->getName() !== $this->name) {
-            throw new LogicException(\sprintf(
-                'Metadata class mismatch during wakeup. Expected "%s", got "%s".',
-                $this->name,
-                $metadata->getName()
-            ));
+            throw new LogicException(\sprintf('Metadata class mismatch during wakeup. Expected "%s", got "%s".', $this->name, $metadata->getName()));
         }
 
         \assert($metadata instanceof OrmClassMetadata);
@@ -84,11 +80,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         foreach ($this->configurations as $configuration) {
             foreach ($configuration->getMappings() as $field => $mapping) {
                 if (isset($mappings[$field])) {
-                    throw new LogicException(\sprintf(
-                        'Field "%s" is mapped by multiple configurations in class "%s". Each field may only be mapped once.',
-                        $field,
-                        $this->name
-                    ));
+                    throw new LogicException(\sprintf('Field "%s" is mapped by multiple configurations in class "%s". Each field may only be mapped once.', $field, $this->name));
                 }
                 $mappings[$field] = $mapping;
             }
@@ -104,11 +96,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
             $declaredField = isset($mapping['declaredField']) && \is_string($mapping['declaredField']) ? $mapping['declaredField'] : null;
 
             if (null !== $declaredField && !isset($this->embedded[$declaredField])) {
-                throw new LogicException(\sprintf(
-                    'Embedded field "%s" is referenced by configuration but no embedded metadata exists for class "%s".',
-                    $declaredField,
-                    $this->name
-                ));
+                throw new LogicException(\sprintf('Embedded field "%s" is referenced by configuration but no embedded metadata exists for class "%s".', $declaredField, $this->name));
             }
 
             if (null !== $declaredField && isset($this->embedded[$declaredField])) {
@@ -138,10 +126,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
     public function getOriginMetadata(): ClassMetadata
     {
         if (null === $this->metadata) {
-            throw new LogicException(\sprintf(
-                'Origin metadata not available for "%s". Call wakeup() after deserialization.',
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Origin metadata not available for "%s". Call wakeup() after deserialization.', $this->name));
         }
 
         return $this->metadata;
@@ -153,10 +138,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
     public function setFieldValue(object $entity, string $field, mixed $value): void
     {
         if (null === $this->metadata) {
-            throw new LogicException(\sprintf(
-                'Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.',
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.', $this->name));
         }
 
         if (isset($this->metadata->getPropertyAccessors()[$field])) {
@@ -166,11 +148,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         }
 
         if (!isset($this->reflectionFields[$field])) {
-            throw new LogicException(\sprintf(
-                'Field "%s" is not mapped in extension metadata for class "%s".',
-                $field,
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Field "%s" is not mapped in extension metadata for class "%s".', $field, $this->name));
         }
 
         $this->reflectionFields[$field]->setValue($entity, $value);
@@ -182,10 +160,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
     public function getFieldValue(object $entity, string $field): mixed
     {
         if (null === $this->metadata) {
-            throw new LogicException(\sprintf(
-                'Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.',
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.', $this->name));
         }
 
         if (isset($this->metadata->getPropertyAccessors()[$field])) {
@@ -193,11 +168,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         }
 
         if (!isset($this->reflectionFields[$field])) {
-            throw new LogicException(\sprintf(
-                'Field "%s" is not mapped in extension metadata for class "%s".',
-                $field,
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Field "%s" is not mapped in extension metadata for class "%s".', $field, $this->name));
         }
 
         return $this->reflectionFields[$field]->getValue($entity);
@@ -214,10 +185,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
     public function getEmbeddedMetadataWithConfiguration(string $class): iterable
     {
         if (null === $this->metadata) {
-            throw new LogicException(\sprintf(
-                'Extension metadata for "%s" is not initialized. Call wakeup() before accessing embedded metadata.',
-                $this->name
-            ));
+            throw new LogicException(\sprintf('Extension metadata for "%s" is not initialized. Call wakeup() before accessing embedded metadata.', $this->name));
         }
 
         foreach ($this->embedded as $fieldName => $metadata) {

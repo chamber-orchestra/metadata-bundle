@@ -71,7 +71,7 @@ final class AbstractExtensionMetadataTest extends TestCase
 
     public function testUsesPropertyAccessorsWhenAvailable(): void
     {
-        $metadata = new class (AccessorEntity::class) extends ClassMetadata {
+        $metadata = new class(AccessorEntity::class) extends ClassMetadata {
             public int $setCalls = 0;
             public int $getCalls = 0;
 
@@ -82,13 +82,13 @@ final class AbstractExtensionMetadataTest extends TestCase
 
             public function setFieldValue(object $entity, string $field, mixed $value): void
             {
-                $this->setCalls++;
+                ++$this->setCalls;
                 $entity->$field = $value;
             }
 
             public function getFieldValue(object $entity, string $field): mixed
             {
-                $this->getCalls++;
+                ++$this->getCalls;
 
                 return $entity->$field;
             }

@@ -31,10 +31,7 @@ trait MetadataConfigurationTrait
     protected function requireReader(): MetadataReader
     {
         if (null === $this->reader) {
-            throw new LogicException(\sprintf(
-                '%s requires a MetadataReader. Ensure setMetadataReader() has been called or #[Required] injection is configured.',
-                static::class
-            ));
+            throw new LogicException(\sprintf('%s requires a MetadataReader. Ensure setMetadataReader() has been called or #[Required] injection is configured.', static::class));
         }
 
         return $this->reader;

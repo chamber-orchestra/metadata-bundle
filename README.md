@@ -1,5 +1,8 @@
 [![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
 [![PHPStan Level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
+[![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)](https://www.php.net/)
+[![Symfony 8.0](https://img.shields.io/badge/Symfony-8.0-000000.svg)](https://symfony.com/)
+[![Doctrine ORM 3](https://img.shields.io/badge/Doctrine%20ORM-3-orange.svg)](https://www.doctrine-project.org/)
 [![Latest Stable Version](https://poser.pugx.org/chamber-orchestra/metadata-bundle/v)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
 [![License](https://poser.pugx.org/chamber-orchestra/metadata-bundle/license)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
 

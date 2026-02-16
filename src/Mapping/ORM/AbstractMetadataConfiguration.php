@@ -15,6 +15,7 @@ use ChamberOrchestra\MetadataBundle\Exception\MappingException;
 
 abstract class AbstractMetadataConfiguration implements MetadataConfigurationInterface
 {
+    /** @var array<string, array<string, mixed>> */
     protected array $mappings = [];
 
     public function mapField(string $fieldName, array $mapping = []): void
@@ -29,7 +30,7 @@ abstract class AbstractMetadataConfiguration implements MetadataConfigurationInt
             throw MappingException::invalidFieldName($declaredField, $originalField);
         }
 
-        $this->mapField($declaredField.'.'.$originalField, \array_replace($mapping, [
+        $this->mapField($declaredField . '.' . $originalField, \array_replace($mapping, [
             'declaredField' => $declaredField,
             'originalField' => $originalField,
             'originalClass' => $class,
@@ -65,6 +66,9 @@ abstract class AbstractMetadataConfiguration implements MetadataConfigurationInt
         return ['mappings' => $this->mappings];
     }
 
+    /**
+     * @param array{mappings: array<string, array<string, mixed>>} $data
+     */
     public function __unserialize(array $data): void
     {
         ['mappings' => $this->mappings] = $data;

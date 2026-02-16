@@ -6,8 +6,8 @@ namespace Tests\Unit\Mapping;
 
 use ChamberOrchestra\MetadataBundle\Exception\LogicException;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadata;
-use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Entity\EmbeddedValue;
 use Tests\Fixtures\Entity\EntityWithEmbedded;
@@ -38,8 +38,8 @@ final class AbstractExtensionMetadataTest extends TestCase
         $metadata->addEmbeddedMetadata('with', $embeddedWithConfig);
         $metadata->addEmbeddedMetadata('without', $embeddedWithoutConfig);
 
-        $filtered = 
-            \iterator_to_array($metadata->getEmbeddedMetadataWithConfiguration(TestMetadataConfiguration::class));
+        $filtered
+            = \iterator_to_array($metadata->getEmbeddedMetadataWithConfiguration(TestMetadataConfiguration::class));
 
         self::assertArrayHasKey('with', $filtered);
         self::assertArrayNotHasKey('without', $filtered);
@@ -71,7 +71,7 @@ final class AbstractExtensionMetadataTest extends TestCase
 
     public function testUsesPropertyAccessorsWhenAvailable(): void
     {
-        $metadata = new class(AccessorEntity::class) extends ClassMetadata {
+        $metadata = new class (AccessorEntity::class) extends ClassMetadata {
             public int $setCalls = 0;
             public int $getCalls = 0;
 

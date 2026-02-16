@@ -13,6 +13,7 @@ namespace ChamberOrchestra\MetadataBundle\Mapping;
 
 use ChamberOrchestra\MetadataBundle\Exception\LogicException;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\MetadataConfigurationInterface;
+use Doctrine\ORM\Mapping\ClassMetadata as OrmClassMetadata;
 use Doctrine\ORM\Mapping\ReflectionEmbeddedProperty;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ReflectionService;
@@ -21,17 +22,28 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
 {
     protected string $name;
     /**
-     * @var MetadataConfigurationInterface[]
+     * @var array<string, MetadataConfigurationInterface>
      */
     private array $configurations = [];
+    /**
+     * @var array<string, \ReflectionProperty>
+     */
     private array $reflectionFields = [];
     /**
-     * @var ExtensionMetadataInterface[]
+     * @var array<string, ExtensionMetadataInterface>
      */
     private array $embedded = [];
 
-    public function __construct(private ClassMetadata $metadata)
+    /** @var OrmClassMetadata<object>|null */
+    private ?OrmClassMetadata $metadata = null;
+
+    /**
+     * @param ClassMetadata<object> $metadata
+     */
+    public function __construct(ClassMetadata $metadata)
     {
+        \assert($metadata instanceof OrmClassMetadata);
+        $this->metadata = $metadata;
         $this->name = $metadata->getName();
     }
 
@@ -50,6 +62,9 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         return $this->configurations[$class] ?? null;
     }
 
+    /**
+     * @param ClassMetadata<object> $metadata
+     */
     public function wakeup(ClassMetadata $metadata, ReflectionService $reflectionService): void
     {
         if ($metadata->getName() !== $this->name) {
@@ -60,6 +75,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
             ));
         }
 
+        \assert($metadata instanceof OrmClassMetadata);
         $this->metadata = $metadata;
         $this->reflectionFields = [];
 
@@ -85,33 +101,43 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         $parentFields = [];
 
         foreach ($mappings as $field => $mapping) {
-            if (isset($mapping['declaredField']) && !isset($this->embedded[$mapping['declaredField']])) {
+            $declaredField = isset($mapping['declaredField']) && \is_string($mapping['declaredField']) ? $mapping['declaredField'] : null;
+
+            if (null !== $declaredField && !isset($this->embedded[$declaredField])) {
                 throw new LogicException(\sprintf(
                     'Embedded field "%s" is referenced by configuration but no embedded metadata exists for class "%s".',
-                    $mapping['declaredField'],
+                    $declaredField,
                     $this->name
                 ));
             }
 
-            if (isset($mapping['declaredField']) && isset($this->embedded[$mapping['declaredField']])) {
-                $declaredField = $mapping['declaredField'];
+            if (null !== $declaredField && isset($this->embedded[$declaredField])) {
                 if (!isset($parentFields[$declaredField])) {
-                    $parentFields[$declaredField] = $reflectionService->getAccessibleProperty($this->name, $declaredField);
+                    $parentFields[$declaredField] = $reflectionService->getAccessibleProperty($this->name, $declaredField)
+                        ?? throw new LogicException(\sprintf('Unable to resolve reflection property "%s" on class "%s".', $declaredField, $this->name));
                 }
+
+                /** @var class-string $originalClass */
+                $originalClass = $mapping['originalClass'];
+                /** @var string $originalField */
+                $originalField = $mapping['originalField'];
+
                 $this->reflectionFields[$field] = new ReflectionEmbeddedProperty(
-                    $parentFields[$mapping['declaredField']],
-                    $reflectionService->getAccessibleProperty($mapping['originalClass'], $mapping['originalField']),
-                    $mapping['originalClass']
+                    $parentFields[$declaredField],
+                    $reflectionService->getAccessibleProperty($originalClass, $originalField)
+                        ?? throw new LogicException(\sprintf('Unable to resolve reflection property "%s" on class "%s".', $originalField, $originalClass)),
+                    $originalClass
                 );
                 continue;
             }
-            $this->reflectionFields[$field] = $reflectionService->getAccessibleProperty($this->name, $field);
+            $this->reflectionFields[$field] = $reflectionService->getAccessibleProperty($this->name, $field)
+                ?? throw new LogicException(\sprintf('Unable to resolve reflection property "%s" on class "%s".', $field, $this->name));
         }
     }
 
     public function getOriginMetadata(): ClassMetadata
     {
-        if (!isset($this->metadata)) {
+        if (null === $this->metadata) {
             throw new LogicException(\sprintf(
                 'Origin metadata not available for "%s". Call wakeup() after deserialization.',
                 $this->name
@@ -126,7 +152,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
      */
     public function setFieldValue(object $entity, string $field, mixed $value): void
     {
-        if (!isset($this->metadata)) {
+        if (null === $this->metadata) {
             throw new LogicException(\sprintf(
                 'Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.',
                 $this->name
@@ -155,7 +181,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
      */
     public function getFieldValue(object $entity, string $field): mixed
     {
-        if (!isset($this->metadata)) {
+        if (null === $this->metadata) {
             throw new LogicException(\sprintf(
                 'Extension metadata for "%s" is not initialized. Call wakeup() before accessing field values.',
                 $this->name
@@ -177,6 +203,9 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         return $this->reflectionFields[$field]->getValue($entity);
     }
 
+    /**
+     * @return array<string, ExtensionMetadataInterface>
+     */
     public function getEmbeddedMetadata(): array
     {
         return $this->embedded;
@@ -184,7 +213,7 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
 
     public function getEmbeddedMetadataWithConfiguration(string $class): iterable
     {
-        if (!isset($this->metadata)) {
+        if (null === $this->metadata) {
             throw new LogicException(\sprintf(
                 'Extension metadata for "%s" is not initialized. Call wakeup() before accessing embedded metadata.',
                 $this->name
@@ -213,6 +242,9 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         ];
     }
 
+    /**
+     * @param array{0: string, 1: array<string, MetadataConfigurationInterface>, 2: array<string, ExtensionMetadataInterface>} $serialized
+     */
     public function __unserialize(array $serialized): void
     {
         [

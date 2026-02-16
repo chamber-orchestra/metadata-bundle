@@ -20,16 +20,19 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 
 class MetadataArgs
 {
-    private ClassMetadata|null $resolvedClassMetadata = null;
+    /** @var ClassMetadata<object>|null */
+    private ?ClassMetadata $resolvedClassMetadata = null;
 
     public function __construct(
         public readonly EntityManagerInterface $entityManager,
         public readonly ExtensionMetadataInterface $extensionMetadata,
         public readonly MetadataConfigurationInterface $configuration,
         public readonly object $entity
-    ) {
-    }
+    ) {}
 
+    /**
+     * @return ClassMetadata<object>
+     */
     public function getClassMetadata(): ClassMetadata
     {
         if (null !== $this->resolvedClassMetadata) {

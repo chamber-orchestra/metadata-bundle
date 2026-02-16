@@ -12,7 +12,7 @@ return static function (ContainerConfigurator $container): void {
     $services->defaults()
         ->autowire()
         ->autoconfigure()
-        ->public(false);
+    ;
 
     $services->load('ChamberOrchestra\\MetadataBundle\\', '../../*')
         ->exclude([

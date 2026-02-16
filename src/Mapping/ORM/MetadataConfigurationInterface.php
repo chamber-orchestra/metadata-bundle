@@ -13,10 +13,19 @@ namespace ChamberOrchestra\MetadataBundle\Mapping\ORM;
 
 interface MetadataConfigurationInterface
 {
+    /**
+     * @param array<string, mixed> $mapping
+     */
     public function mapField(string $fieldName, array $mapping = []): void;
 
+    /**
+     * @param array<string, mixed> $mapping
+     */
     public function mapEmbeddedField(string $class, string $declaredField, string $originalField, array $mapping = []): void;
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getMappings(): array;
 
     /**
@@ -28,8 +37,13 @@ interface MetadataConfigurationInterface
      * A numerically indexed list of field names of this persistent class.
      *
      * This array includes identifier fields if present on this class.
+     *
+     * @return list<string>
      */
     public function getFieldNames(): array;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getMapping(string $fieldName): array;
 }

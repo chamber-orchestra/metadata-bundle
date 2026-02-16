@@ -24,10 +24,11 @@ class MetadataReader
      */
     private array $configurations = [];
 
-    public function __construct(private readonly ExtensionMetadataFactory $factory)
-    {
-    }
+    public function __construct(private readonly ExtensionMetadataFactory $factory) {}
 
+    /**
+     * @param ClassMetadata<object> $metadata
+     */
     public function loadExtensionMetadata(EntityManagerInterface $em, ClassMetadata $metadata): void
     {
         $key = \spl_object_id($em) . '#' . $metadata->getName();

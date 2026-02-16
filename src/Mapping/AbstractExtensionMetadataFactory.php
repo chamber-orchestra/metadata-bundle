@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ChamberOrchestra\MetadataBundle\Mapping;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata as OrmClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ReflectionService;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
@@ -29,14 +30,12 @@ abstract class AbstractExtensionMetadataFactory
      * @var ExtensionMetadataInterface[]
      */
     private array $loadedMetadata = [];
-    private ReflectionService|null $reflectionService = null {
-        get {
-            return $this->reflectionService ??= new RuntimeReflectionService();
-        }
-    }
+    private ?ReflectionService $reflectionService = null;
 
     /**
      * Gets the class metadata descriptor for a class.
+     *
+     * @param ClassMetadata<object> $metadata
      */
     public function getMetadataFor(EntityManagerInterface $em, ClassMetadata $metadata): ExtensionMetadataInterface
     {
@@ -51,9 +50,12 @@ abstract class AbstractExtensionMetadataFactory
             $item = $cache->getItem($this->sanitize($metadata->getName()));
 
             if ($item->isHit()) {
-                $this->wakeup($em, $metadata, $extensionMetadata = $item->get());
+                $extensionMetadata = $item->get();
+                \assert($extensionMetadata instanceof ExtensionMetadataInterface);
+                $this->wakeup($em, $metadata, $extensionMetadata);
             } else {
-                $item->set($extensionMetadata = $this->loadMetadata($em, $metadata));
+                $extensionMetadata = $this->loadMetadata($em, $metadata);
+                $item->set($extensionMetadata);
                 $cache->save($item);
             }
         } else {
@@ -75,21 +77,26 @@ abstract class AbstractExtensionMetadataFactory
 
     /**
      * Loads metadata for entity.
+     *
+     * @param ClassMetadata<object> $classMetadata
      */
     protected function loadMetadata(EntityManagerInterface $em, ClassMetadata $classMetadata): ExtensionMetadataInterface
     {
         $extensionMetadata = $this->newClassMetadataInstance($classMetadata);
         $this->loadEmbeddedMetadata($em, $classMetadata, $extensionMetadata);
         $this->doLoadMetadata($extensionMetadata);
-        $extensionMetadata->wakeup($classMetadata, $this->reflectionService);
+        $extensionMetadata->wakeup($classMetadata, $this->getReflectionService());
 
         return $extensionMetadata;
     }
 
+    /**
+     * @param ClassMetadata<object> $classMetadata
+     */
     protected function wakeup(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
     {
         $this->loadEmbeddedMetadata($em, $classMetadata, $extensionMetadata);
-        $extensionMetadata->wakeup($classMetadata, $this->reflectionService);
+        $extensionMetadata->wakeup($classMetadata, $this->getReflectionService());
     }
 
     /**
@@ -99,16 +106,26 @@ abstract class AbstractExtensionMetadataFactory
 
     /**
      * Creates a new ClassMetadata instance for the given class name.
+     *
+     * @param ClassMetadata<object> $metadata
      */
     abstract protected function newClassMetadataInstance(ClassMetadata $metadata): ExtensionMetadataInterface;
 
+    /**
+     * @param ClassMetadata<object> $classMetadata
+     */
     private function loadEmbeddedMetadata(EntityManagerInterface $em, ClassMetadata $classMetadata, ExtensionMetadataInterface $extensionMetadata): void
     {
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $classMetadata */
+        \assert($classMetadata instanceof OrmClassMetadata);
         foreach ($classMetadata->embeddedClasses as $fieldName => $mapping) {
             $embeddedMetadata = $em->getClassMetadata($mapping->class);
             $extensionMetadata->addEmbeddedMetadata($fieldName, $this->getMetadataFor($em, $embeddedMetadata));
         }
+    }
+
+    private function getReflectionService(): ReflectionService
+    {
+        return $this->reflectionService ??= new RuntimeReflectionService();
     }
 
     protected function getCacheNamespace(): string

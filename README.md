@@ -1,4 +1,5 @@
 [![PHP Composer](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml/badge.svg)](https://github.com/chamber-orchestra/metadata-bundle/actions/workflows/php.yml)
+[![PHPStan Level max](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![Latest Stable Version](https://poser.pugx.org/chamber-orchestra/metadata-bundle/v)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
 [![License](https://poser.pugx.org/chamber-orchestra/metadata-bundle/license)](https://packagist.org/packages/chamber-orchestra/metadata-bundle)
 

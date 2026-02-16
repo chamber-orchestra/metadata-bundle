@@ -17,12 +17,13 @@ class MappingException extends RuntimeException implements ExceptionInterface
 {
     public static function duplicateFieldMapping(string $entity, string $fieldName): self
     {
-        return new self('Property "'.$fieldName.'" in "'.$entity.'" was already declared, but it must be declared only once');
+        return new self('Property "' . $fieldName . '" in "' . $entity . '" was already declared, but it must be declared only once');
     }
 
     public static function missingProperty(string $className, string $property, string $originProperty): self
     {
-        return new self(\sprintf('Class "%s" has no property "%s" specified in property "%s"',
+        return new self(\sprintf(
+            'Class "%s" has no property "%s" specified in property "%s"',
             $className,
             $property,
             $originProperty
@@ -31,7 +32,8 @@ class MappingException extends RuntimeException implements ExceptionInterface
 
     public static function missingAttribute(string $className, string $field, string $attributeClass): self
     {
-        return new self(\sprintf('Class "%s" has no required attribute "%s" at field "%s".',
+        return new self(\sprintf(
+            'Class "%s" has no required attribute "%s" at field "%s".',
             $className,
             $attributeClass,
             $field

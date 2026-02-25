@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Exception;
 
+use ChamberOrchestra\MetadataBundle\Exception\DuplicateMappingException;
+use ChamberOrchestra\MetadataBundle\Exception\InvalidMappingAttributeException;
 use ChamberOrchestra\MetadataBundle\Exception\MappingException;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +22,7 @@ final class MappingExceptionTest extends TestCase
     {
         $exception = MappingException::duplicateFieldMapping('Foo', 'bar');
 
+        self::assertInstanceOf(DuplicateMappingException::class, $exception);
         self::assertSame('Property "bar" in "Foo" was already declared, but it must be declared only once', $exception->getMessage());
     }
 
@@ -34,6 +37,7 @@ final class MappingExceptionTest extends TestCase
     {
         $exception = MappingException::missingAttribute('Foo', 'bar', 'Baz');
 
+        self::assertInstanceOf(InvalidMappingAttributeException::class, $exception);
         self::assertSame('Class "Foo" has no required attribute "Baz" at field "bar".', $exception->getMessage());
     }
 }

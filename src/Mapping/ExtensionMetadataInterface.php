@@ -32,9 +32,16 @@ interface ExtensionMetadataInterface
      */
     public function getEmbeddedMetadataWithConfiguration(string $class): iterable;
 
-    public function addEmbeddedMetadata(string $fieldName, ExtensionMetadataInterface $metadata): void;
+    public function addEmbeddedMetadata(string $fieldName, self $metadata): void;
 
     public function getConfiguration(string $class): ?MetadataConfigurationInterface;
+
+    public function hasConfiguration(string $class): bool;
+
+    /**
+     * @return array<string, MetadataConfigurationInterface>
+     */
+    public function getConfigurations(): array;
 
     public function addConfiguration(MetadataConfigurationInterface $configuration): void;
 

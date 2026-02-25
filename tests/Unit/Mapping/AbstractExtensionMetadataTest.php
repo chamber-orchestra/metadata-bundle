@@ -28,8 +28,11 @@ final class AbstractExtensionMetadataTest extends TestCase
         $metadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
         $configuration = new TestMetadataConfiguration();
 
+        self::assertFalse($metadata->hasConfiguration(TestMetadataConfiguration::class));
+
         $metadata->addConfiguration($configuration);
 
+        self::assertTrue($metadata->hasConfiguration(TestMetadataConfiguration::class));
         self::assertSame($configuration, $metadata->getConfiguration(TestMetadataConfiguration::class));
     }
 

@@ -13,9 +13,9 @@ namespace ChamberOrchestra\MetadataBundle\Exception;
 
 class MappingException extends \RuntimeException implements ExceptionInterface
 {
-    public static function duplicateFieldMapping(string $entity, string $fieldName): self
+    public static function duplicateFieldMapping(string $entity, string $fieldName): DuplicateMappingException
     {
-        return new self('Property "'.$fieldName.'" in "'.$entity.'" was already declared, but it must be declared only once');
+        return new DuplicateMappingException('Property "'.$fieldName.'" in "'.$entity.'" was already declared, but it must be declared only once');
     }
 
     public static function missingProperty(string $className, string $property, string $originProperty): self
@@ -28,9 +28,9 @@ class MappingException extends \RuntimeException implements ExceptionInterface
         ));
     }
 
-    public static function missingAttribute(string $className, string $field, string $attributeClass): self
+    public static function missingAttribute(string $className, string $field, string $attributeClass): InvalidMappingAttributeException
     {
-        return new self(\sprintf(
+        return new InvalidMappingAttributeException(\sprintf(
             'Class "%s" has no required attribute "%s" at field "%s".',
             $className,
             $attributeClass,

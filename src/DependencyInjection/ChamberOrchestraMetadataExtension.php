@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\DependencyInjection;
 
+use ChamberOrchestra\MetadataBundle\DataCollector\MetadataDataCollector;
 use ChamberOrchestra\MetadataBundle\Mapping\Driver\MappingDriverInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,5 +27,9 @@ class ChamberOrchestraMetadataExtension extends Extension
 
         $container->registerForAutoconfiguration(MappingDriverInterface::class)
             ->addTag('chamber_orchestra_metadata.mapping.driver');
+
+        if ($container->hasParameter('kernel.debug') && !$container->getParameter('kernel.debug')) {
+            $container->removeDefinition(MetadataDataCollector::class);
+        }
     }
 }

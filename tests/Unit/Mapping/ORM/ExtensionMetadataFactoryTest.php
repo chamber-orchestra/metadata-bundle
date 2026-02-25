@@ -12,12 +12,15 @@ declare(strict_types=1);
 namespace Tests\Unit\Mapping\ORM;
 
 use ChamberOrchestra\MetadataBundle\Mapping\Driver\MappingDriverInterface;
+use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadataFactory;
+use ChamberOrchestra\MetadataBundle\Mapping\ORM\ValidatableConfigurationInterface;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Entity\SimpleEntity;
+use Tests\Fixtures\Mapping\TestMetadataConfiguration;
 
 final class ExtensionMetadataFactoryTest extends TestCase
 {
@@ -45,5 +48,38 @@ final class ExtensionMetadataFactoryTest extends TestCase
         $metadata = new ClassMetadata(SimpleEntity::class);
 
         $factory->getMetadataFor($entityManager, $metadata);
+    }
+
+    public function testCallsValidateOnValidatableConfigurations(): void
+    {
+        $validateCalled = false;
+
+        $driver = $this->createStub(MappingDriverInterface::class);
+        $driver->method('supports')->willReturn(true);
+        $driver->method('loadMetadataForClass')
+            ->willReturnCallback(static function (ExtensionMetadataInterface $meta) use (&$validateCalled): void {
+                $config = new class($validateCalled) extends TestMetadataConfiguration implements ValidatableConfigurationInterface {
+                    public function __construct(private bool &$called)
+                    {
+                    }
+
+                    public function validate(ExtensionMetadataInterface $metadata): void
+                    {
+                        $this->called = true;
+                    }
+                };
+                $meta->addConfiguration($config);
+            });
+
+        $factory = new ExtensionMetadataFactory([$driver]);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('getConfiguration')->willReturn(new Configuration());
+
+        $metadata = new ClassMetadata(SimpleEntity::class);
+
+        $factory->getMetadataFor($entityManager, $metadata);
+
+        self::assertTrue($validateCalled, 'validate() should have been called on the validatable configuration');
     }
 }

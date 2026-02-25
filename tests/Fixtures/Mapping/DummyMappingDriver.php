@@ -24,4 +24,9 @@ class DummyMappingDriver implements MappingDriverInterface
     {
         return false;
     }
+
+    public static function getPriority(): int
+    {
+        return 0;
+    }
 }

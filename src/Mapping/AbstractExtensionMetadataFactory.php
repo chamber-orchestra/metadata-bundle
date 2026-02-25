@@ -27,9 +27,9 @@ abstract class AbstractExtensionMetadataFactory
      */
     private static string $cacheSalt = '$EXTENSIONMETADATA';
     /**
-     * @var ExtensionMetadataInterface[]
+     * @var \WeakMap<EntityManagerInterface, array<string, ExtensionMetadataInterface>>
      */
-    private array $loadedMetadata = [];
+    private \WeakMap $loadedMetadata;
     private ?ReflectionService $reflectionService = null;
 
     /**
@@ -39,15 +39,16 @@ abstract class AbstractExtensionMetadataFactory
      */
     public function getMetadataFor(EntityManagerInterface $em, ClassMetadata $metadata): ExtensionMetadataInterface
     {
-        $key = \spl_object_id($em).'#'.$metadata->getName();
-        if (isset($this->loadedMetadata[$key])) {
-            return $this->loadedMetadata[$key];
+        $emMetadata = $this->getLoadedMetadata()[$em] ?? [];
+        $className = $metadata->getName();
+        if (isset($emMetadata[$className])) {
+            return $emMetadata[$className];
         }
 
         if ($cache = $em->getConfiguration()->getMetadataCache()) {
             // Note: cache key does not include EM identity.
             // If using multiple EntityManagers, ensure each has a separate metadata cache pool.
-            $item = $cache->getItem($this->sanitize($metadata->getName()));
+            $item = $cache->getItem($this->sanitize($className));
 
             if ($item->isHit()) {
                 $extensionMetadata = $item->get();
@@ -62,7 +63,12 @@ abstract class AbstractExtensionMetadataFactory
             $extensionMetadata = $this->loadMetadata($em, $metadata);
         }
 
-        return $this->loadedMetadata[$key] = $extensionMetadata;
+        $loadedMetadata = $this->getLoadedMetadata();
+        $emMetadata = $loadedMetadata[$em] ?? [];
+        $emMetadata[$className] = $extensionMetadata;
+        $loadedMetadata[$em] = $emMetadata;
+
+        return $extensionMetadata;
     }
 
     /**
@@ -70,9 +76,9 @@ abstract class AbstractExtensionMetadataFactory
      */
     public function hasMetadataFor(EntityManagerInterface $em, string $className): bool
     {
-        $key = \spl_object_id($em).'#'.$className;
+        $emMetadata = $this->getLoadedMetadata()[$em] ?? [];
 
-        return isset($this->loadedMetadata[$key]);
+        return isset($emMetadata[$className]);
     }
 
     /**
@@ -123,6 +129,14 @@ abstract class AbstractExtensionMetadataFactory
         }
     }
 
+    /**
+     * @return \WeakMap<EntityManagerInterface, array<string, ExtensionMetadataInterface>>
+     */
+    private function getLoadedMetadata(): \WeakMap
+    {
+        return $this->loadedMetadata ??= new \WeakMap();
+    }
+
     private function getReflectionService(): ReflectionService
     {
         return $this->reflectionService ??= new RuntimeReflectionService();
@@ -135,6 +149,9 @@ abstract class AbstractExtensionMetadataFactory
 
     private function sanitize(string $string): string
     {
-        return \preg_replace('/[^a-zA-Z0-9._-]/', '_', $string.'.'.$this->getCacheNamespace()).self::$cacheSalt;
+        $result = \preg_replace('/[^a-zA-Z0-9._-]/', '_', $string.'.'.$this->getCacheNamespace());
+        \assert(\is_string($result));
+
+        return $result.self::$cacheSalt;
     }
 }

@@ -44,7 +44,7 @@ abstract class AbstractDoctrineListener
     }
 
     /**
-     * @return array<string, array{mixed, mixed}|\Doctrine\ORM\PersistentCollection>
+     * @return array<string, array{mixed, mixed}|\Doctrine\ORM\PersistentCollection<array-key, mixed>>
      */
     protected function getEntityChangeSet(EntityManagerInterface $em, MetadataArgs $args): array
     {

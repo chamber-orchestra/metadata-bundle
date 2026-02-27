@@ -69,7 +69,7 @@ class MetadataReader
         }
 
         // For aliases/proxies, ensure canonical key exists, then alias it
-        $emConfigs = $this->configurations[$em] ?? [];
+        $emConfigs = $this->configurations[$em];
         if (!isset($emConfigs[$canonicalClass])) {
             $this->loadExtensionMetadata($em, $metadata);
             $emConfigs = $this->configurations[$em];

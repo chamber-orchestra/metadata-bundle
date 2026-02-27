@@ -13,6 +13,7 @@ namespace ChamberOrchestra\MetadataBundle\Mapping;
 
 use ChamberOrchestra\MetadataBundle\Exception\LogicException;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\MetadataConfigurationInterface;
+use ChamberOrchestra\MetadataBundle\Mapping\ORM\WakeupAwareConfigurationInterface;
 use Doctrine\ORM\Mapping\ClassMetadata as OrmClassMetadata;
 use Doctrine\ORM\Mapping\ReflectionEmbeddedProperty;
 use Doctrine\Persistence\Mapping\ClassMetadata;
@@ -54,12 +55,22 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
 
     public function addConfiguration(MetadataConfigurationInterface $configuration): void
     {
-        $this->configurations[\get_class($configuration)] = $configuration;
+        $this->configurations[$configuration::class] = $configuration;
     }
 
     public function getConfiguration(string $class): ?MetadataConfigurationInterface
     {
         return $this->configurations[$class] ?? null;
+    }
+
+    public function hasConfiguration(string $class): bool
+    {
+        return isset($this->configurations[$class]);
+    }
+
+    public function getConfigurations(): array
+    {
+        return $this->configurations;
     }
 
     /**
@@ -86,6 +97,10 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
             }
         }
         if ($metadata->fieldMappings) {
+            $shadowed = \array_intersect_key($mappings, $metadata->fieldMappings);
+            foreach ($shadowed as $field => $mapping) {
+                @\trigger_error(\sprintf('Extension metadata field "%s" in class "%s" is shadowed by a Doctrine field mapping and will be skipped.', $field, $this->name), \E_USER_NOTICE);
+            }
             $mappings = \array_diff_key($mappings, $metadata->fieldMappings);
         }
 
@@ -120,6 +135,12 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
             }
             $this->reflectionFields[$field] = $reflectionService->getAccessibleProperty($this->name, $field)
                 ?? throw new LogicException(\sprintf('Unable to resolve reflection property "%s" on class "%s".', $field, $this->name));
+        }
+
+        foreach ($this->configurations as $configuration) {
+            if ($configuration instanceof WakeupAwareConfigurationInterface) {
+                $configuration->wakeup();
+            }
         }
     }
 

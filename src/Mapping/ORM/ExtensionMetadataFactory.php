@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\Mapping\ORM;
 
+use ChamberOrchestra\MetadataBundle\DataCollector\MetadataDataCollector;
 use ChamberOrchestra\MetadataBundle\Mapping\AbstractExtensionMetadataFactory;
 use ChamberOrchestra\MetadataBundle\Mapping\Driver\MappingDriverInterface;
 use ChamberOrchestra\MetadataBundle\Mapping\ExtensionMetadataInterface;
@@ -23,16 +24,25 @@ class ExtensionMetadataFactory extends AbstractExtensionMetadataFactory
      * @param iterable<MappingDriverInterface> $drivers
      */
     public function __construct(
-        #[AutowireIterator('chamber_orchestra_metadata.mapping.driver')]
+        #[AutowireIterator('chamber_orchestra_metadata.mapping.driver', defaultPriorityMethod: 'getPriority')]
         private readonly iterable $drivers,
+        private readonly ?MetadataDataCollector $dataCollector = null,
     ) {
     }
 
     protected function doLoadMetadata(ExtensionMetadataInterface $class): void
     {
         foreach ($this->drivers as $driver) {
-            if ($driver->supports($class)) {
+            $supported = $driver->supports($class);
+            if ($supported) {
                 $driver->loadMetadataForClass($class);
+            }
+            $this->dataCollector?->recordDriverInvocation($driver::class, $class->getName(), $supported, $supported);
+        }
+
+        foreach ($class->getConfigurations() as $configuration) {
+            if ($configuration instanceof ValidatableConfigurationInterface) {
+                $configuration->validate($class);
             }
         }
     }

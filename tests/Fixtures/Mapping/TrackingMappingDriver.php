@@ -30,4 +30,9 @@ final class TrackingMappingDriver implements MappingDriverInterface
 
         return true;
     }
+
+    public static function getPriority(): int
+    {
+        return 0;
+    }
 }

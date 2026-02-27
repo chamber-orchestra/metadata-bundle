@@ -25,4 +25,9 @@ interface MappingDriverInterface
      * This is only the case if it is either mapped as an Entity or a MappedSuperclass.
      */
     public function supports(ExtensionMetadataInterface $metadata): bool;
+
+    /**
+     * Returns the priority of this driver. Higher values mean earlier execution.
+     */
+    public static function getPriority(): int;
 }

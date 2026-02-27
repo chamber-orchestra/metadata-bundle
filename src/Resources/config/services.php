@@ -9,7 +9,6 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-use ChamberOrchestra\MetadataBundle\EventSubscriber\MetadataSubscriber;
 use ChamberOrchestra\MetadataBundle\Mapping\MetadataReader;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -35,6 +34,4 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(MetadataReader::class)
         ->lazy();
-
-    $services->set(MetadataSubscriber::class);
 };

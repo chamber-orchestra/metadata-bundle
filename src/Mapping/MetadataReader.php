@@ -20,12 +20,13 @@ use Doctrine\Persistence\Mapping\MappingException;
 class MetadataReader
 {
     /**
-     * @var ExtensionMetadataInterface[]
+     * @var \WeakMap<EntityManagerInterface, array<string, ExtensionMetadataInterface>>
      */
-    private array $configurations = [];
+    private \WeakMap $configurations;
 
     public function __construct(private readonly ExtensionMetadataFactory $factory)
     {
+        $this->configurations = new \WeakMap();
     }
 
     /**
@@ -33,13 +34,15 @@ class MetadataReader
      */
     public function loadExtensionMetadata(EntityManagerInterface $em, ClassMetadata $metadata): void
     {
-        $key = \spl_object_id($em).'#'.$metadata->getName();
-        if (isset($this->configurations[$key])) {
+        $emConfigs = $this->configurations[$em] ??= [];
+        $className = $metadata->getName();
+        if (isset($emConfigs[$className])) {
             return;
         }
 
         $config = $this->factory->getMetadataFor($em, $metadata);
-        $this->configurations[$key] = $config;
+        $emConfigs[$className] = $config;
+        $this->configurations[$em] = $emConfigs;
     }
 
     /**
@@ -49,9 +52,9 @@ class MetadataReader
      */
     public function getExtensionMetadata(EntityManagerInterface $em, string $class): ExtensionMetadataInterface
     {
-        $key = \spl_object_id($em).'#'.$class;
-        if (isset($this->configurations[$key])) {
-            return $this->configurations[$key];
+        $emConfigs = $this->configurations[$em] ??= [];
+        if (isset($emConfigs[$class])) {
+            return $emConfigs[$class];
         }
 
         // Resolve canonical class name (handles proxies, aliases, etc.)
@@ -62,16 +65,20 @@ class MetadataReader
         if ($class === $canonicalClass) {
             $this->loadExtensionMetadata($em, $metadata);
 
-            return $this->configurations[$key];
+            return $this->configurations[$em][$class];
         }
 
         // For aliases/proxies, ensure canonical key exists, then alias it
-        $resolvedKey = \spl_object_id($em).'#'.$canonicalClass;
-        if (!isset($this->configurations[$resolvedKey])) {
+        $emConfigs = $this->configurations[$em];
+        if (!isset($emConfigs[$canonicalClass])) {
             $this->loadExtensionMetadata($em, $metadata);
+            $emConfigs = $this->configurations[$em];
         }
 
-        return $this->configurations[$key] = $this->configurations[$resolvedKey];
+        $emConfigs[$class] = $emConfigs[$canonicalClass];
+        $this->configurations[$em] = $emConfigs;
+
+        return $emConfigs[$class];
     }
 
     /**

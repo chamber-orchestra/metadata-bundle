@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Tests\Unit\EventSubscriber;
 
 use ChamberOrchestra\MetadataBundle\EventSubscriber\AbstractDoctrineListener;
+use ChamberOrchestra\MetadataBundle\Helper\MetadataArgs;
 use ChamberOrchestra\MetadataBundle\Mapping\MetadataReader;
 use ChamberOrchestra\MetadataBundle\Mapping\ORM\ExtensionMetadata;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,9 +43,7 @@ final class AbstractDoctrineListenerTest extends TestCase
         $reader = $this->createStub(MetadataReader::class);
         $reader
             ->method('getExtensionMetadata')
-            ->willReturnCallback(static function (EntityManagerInterface $em, string $class) use ($metadataByClass): ExtensionMetadata {
-                return $metadataByClass[$class];
-            });
+            ->willReturnCallback(static fn (EntityManagerInterface $em, string $class): ExtensionMetadata => $metadataByClass[$class]);
 
         $unitOfWork = $this->createStub(UnitOfWork::class);
         $unitOfWork->method('getScheduledEntityInsertions')->willReturn([$configuredEntity, $unconfiguredEntity]);
@@ -85,5 +84,31 @@ final class AbstractDoctrineListenerTest extends TestCase
         self::assertSame($configuredEntity, $updates[0]->entity);
 
         self::assertCount(0, $deletions);
+    }
+
+    public function testGetEntityChangeSetDelegatesToUnitOfWork(): void
+    {
+        $entity = new SimpleEntity();
+        $changeSet = ['name' => ['old', 'new']];
+
+        $unitOfWork = $this->createStub(UnitOfWork::class);
+        $unitOfWork->method('getEntityChangeSet')->willReturn($changeSet);
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('getUnitOfWork')->willReturn($unitOfWork);
+
+        $extensionMetadata = new ExtensionMetadata(new ClassMetadata(SimpleEntity::class));
+        $configuration = new TestMetadataConfiguration();
+
+        $args = new MetadataArgs($entityManager, $extensionMetadata, $configuration, $entity);
+
+        $listener = new class extends AbstractDoctrineListener {
+            public function changeSet(EntityManagerInterface $em, MetadataArgs $args): array
+            {
+                return $this->getEntityChangeSet($em, $args);
+            }
+        };
+
+        self::assertSame($changeSet, $listener->changeSet($entityManager, $args));
     }
 }

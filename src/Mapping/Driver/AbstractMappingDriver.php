@@ -20,6 +20,11 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
     {
     }
 
+    public static function getPriority(): int
+    {
+        return 0;
+    }
+
     /**
      * Returns true if this driver should process the given metadata.
      *
@@ -91,9 +96,6 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
         $reflection = $metadata->getOriginMetadata()->getReflectionClass();
 
         foreach ($reflection->getProperties() as $property) {
-            if ($property->getDeclaringClass()->getName() !== $reflection->getName()) {
-                continue;
-            }
             if (null !== $this->reader->getPropertyAttribute($property, $attribute)) {
                 return true;
             }

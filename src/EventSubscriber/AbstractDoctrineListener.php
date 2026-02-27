@@ -44,6 +44,14 @@ abstract class AbstractDoctrineListener
     }
 
     /**
+     * @return array<string, array{mixed, mixed}|\Doctrine\ORM\PersistentCollection<array-key, mixed>>
+     */
+    protected function getEntityChangeSet(EntityManagerInterface $em, MetadataArgs $args): array
+    {
+        return $em->getUnitOfWork()->getEntityChangeSet($args->entity);
+    }
+
+    /**
      * @param array<object> $entities
      *
      * @return MetadataArgs[]

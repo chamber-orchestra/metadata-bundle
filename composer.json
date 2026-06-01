@@ -33,7 +33,7 @@
   "require": {
     "php": "^8.5",
     "symfony/dependency-injection": "8.0.*",
-    "symfony/config": "8.0.*",
+    "symfony/config": "8.1.*",
     "symfony/framework-bundle": "8.0.*",
     "symfony/runtime": "8.0.*",
     "doctrine/orm": "3.6.*",

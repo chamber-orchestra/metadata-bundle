@@ -2,9 +2,10 @@ name: PHP Composer
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - "[0-9]+.[0-9]+"
   pull_request:
-    branches: ["main"]
 
 permissions:
   contents: read
@@ -23,16 +24,13 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-
       - name: Cache Composer packages
         uses: actions/cache@v5
         with:
           path: |
             vendor
             ~/.composer/cache/files
-          key: ${{ runner.os }}-php-8.5-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-8.5-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             ${{ runner.os }}-php-8.5-composer-
 

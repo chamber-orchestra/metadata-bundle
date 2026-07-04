@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping\MappingAttribute;
 class AttributeReader
 {
     /**
-     * @param \ReflectionClass<object> $class
+     * @param \ReflectionClass<covariant object> $class
      *
      * @return array<class-string, MappingAttribute>
      */
@@ -27,7 +27,7 @@ class AttributeReader
     }
 
     /**
-     * @param \ReflectionClass<object> $class
+     * @param \ReflectionClass<covariant object> $class
      */
     public function getClassAttribute(\ReflectionClass $class, string $attributeName): ?MappingAttribute
     {

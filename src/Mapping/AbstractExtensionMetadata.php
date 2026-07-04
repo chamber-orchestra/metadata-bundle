@@ -110,11 +110,11 @@ abstract class AbstractExtensionMetadata implements ExtensionMetadataInterface
         foreach ($mappings as $field => $mapping) {
             $declaredField = isset($mapping['declaredField']) && \is_string($mapping['declaredField']) ? $mapping['declaredField'] : null;
 
-            if (null !== $declaredField && !isset($this->embedded[$declaredField])) {
-                throw new LogicException(\sprintf('Embedded field "%s" is referenced by configuration but no embedded metadata exists for class "%s".', $declaredField, $this->name));
-            }
+            if (null !== $declaredField) {
+                if (!isset($this->embedded[$declaredField])) {
+                    throw new LogicException(\sprintf('Embedded field "%s" is referenced by configuration but no embedded metadata exists for class "%s".', $declaredField, $this->name));
+                }
 
-            if (null !== $declaredField && isset($this->embedded[$declaredField])) {
                 if (!isset($parentFields[$declaredField])) {
                     $parentFields[$declaredField] = $reflectionService->getAccessibleProperty($this->name, $declaredField)
                         ?? throw new LogicException(\sprintf('Unable to resolve reflection property "%s" on class "%s".', $declaredField, $this->name));

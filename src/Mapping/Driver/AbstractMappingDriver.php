@@ -20,11 +20,6 @@ abstract class AbstractMappingDriver implements MappingDriverInterface
     {
     }
 
-    public static function getPriority(): int
-    {
-        return 0;
-    }
-
     /**
      * Returns true if this driver should process the given metadata.
      *

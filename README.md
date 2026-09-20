@@ -53,7 +53,7 @@ class TimestampableDriver extends AbstractMappingDriver
 }
 ```
 
-Drivers implementing `MappingDriverInterface` are automatically tagged and registered by the bundle.
+Drivers implementing `MappingDriverInterface` are automatically tagged and registered by the bundle. Drivers run in tag order; to run earlier or later than the default, add `#[AsTaggedItem(priority: 10)]` to the driver class.
 
 ### 2. Create a Metadata Factory
 

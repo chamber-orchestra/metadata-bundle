@@ -27,7 +27,7 @@ composer run-script test            # Alias for bin/phpunit
 
 ### Key abstractions
 
-- **`MappingDriverInterface`** — extension point for consumers. Implement this to define custom attribute-driven metadata. Auto-tagged via `chamber_orchestra_metadata.mapping.driver` (autoconfiguration in the DI extension).
+- **`MappingDriverInterface`** — extension point for consumers. Implement this to define custom attribute-driven metadata. Auto-tagged via `chamber_orchestra_metadata.mapping.driver` (autoconfiguration in the DI extension). Execution order is the tag order; override it with `#[AsTaggedItem(priority: N)]` on the driver.
 - **`AbstractMappingDriver`** — base driver using `AttributeReader`. Override `getClassAnnotation()` / `getPropertyAnnotation()` to control `supports()` logic; override `supportsEmbedded()` to opt into embedded class scanning.
 - **`MetadataConfigurationInterface` / `AbstractMetadataConfiguration`** — stores field mappings produced by drivers. Serializable for Doctrine metadata cache. Each entity's `ExtensionMetadata` holds a map of configuration objects keyed by class name.
 - **`AbstractDoctrineListener`** + `MetadataConfigurationTrait` — base for Doctrine event listeners that need to access extension metadata. Provides `getScheduledEntity{Insertions,Updates,Deletions}()` helpers that filter UoW by configuration class and return `MetadataArgs` value objects.

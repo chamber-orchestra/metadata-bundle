@@ -32,13 +32,13 @@
   },
   "require": {
     "php": "^8.5",
-    "symfony/dependency-injection": "8.1.*",
-    "symfony/config": "8.1.*",
-    "symfony/framework-bundle": "8.1.*",
-    "symfony/runtime": "8.1.*",
-    "doctrine/orm": "3.7.*",
+    "symfony/dependency-injection": "8.2.*",
+    "symfony/config": "8.2.*",
+    "symfony/framework-bundle": "8.2.*",
+    "symfony/runtime": "8.2.*",
+    "doctrine/orm": "3.8.*",
     "doctrine/common": "^3.5",
-    "doctrine/doctrine-bundle": "3.3.*"
+    "doctrine/doctrine-bundle": "3.4.*"
   },
   "require-dev": {
     "phpunit/phpunit": "^13.3",
@@ -56,14 +56,14 @@
       "Tests\\": "tests/"
     }
   },
-  "minimum-stability": "stable",
+  "minimum-stability": "beta",
   "conflict": {
     "symfony/symfony": "*"
   },
   "extra": {
     "symfony": {
       "allow-contrib": false,
-      "require": "8.1.*"
+      "require": "8.2.*"
     }
   },
   "config": {
@@ -76,5 +76,6 @@
     "analyse": "vendor/bin/phpstan analyse",
     "cs-check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
     "cs-fix": "vendor/bin/php-cs-fixer fix"
-  }
+  },
+  "prefer-stable": true
 }

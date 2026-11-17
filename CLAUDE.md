@@ -63,5 +63,5 @@ Services are autowired and autoconfigured via `src/Resources/config/services.php
 
 ## Dependencies
 
-- Requires PHP 8.5, Symfony 8.0 components, Doctrine ORM 3.6, Doctrine Bundle 3.2
+- Requires PHP 8.5, Symfony 8.2 components, Doctrine ORM 3.6, Doctrine Bundle 3.2
 - Part of the `chamber-orchestra` bundle ecosystem (sibling: `chamber-orchestra/form-bundle`)

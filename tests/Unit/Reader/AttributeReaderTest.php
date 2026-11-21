@@ -15,8 +15,10 @@ use ChamberOrchestra\MetadataBundle\Reader\AttributeReader;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Attributes\ExampleClassAttribute;
 use Tests\Fixtures\Attributes\ExamplePropertyAttribute;
+use Tests\Fixtures\Attributes\RepeatableClassAttribute;
 use Tests\Fixtures\Entity\ClassAttributedEntity;
 use Tests\Fixtures\Entity\PropertyAttributedEntity;
+use Tests\Fixtures\Entity\RepeatedAttributesEntity;
 use Tests\Fixtures\Entity\SimpleEntity;
 
 final class AttributeReaderTest extends TestCase
@@ -65,5 +67,17 @@ final class AttributeReaderTest extends TestCase
         $reflection = new \ReflectionClass(SimpleEntity::class);
 
         self::assertSame([], $reader->getClassAttributes($reflection));
+    }
+
+    public function testARepeatedAttributeIsReadOnceAndDoesNotHideTheOthers(): void
+    {
+        $reader = new AttributeReader();
+        $reflection = new \ReflectionClass(RepeatedAttributesEntity::class);
+
+        $repeated = $reader->getClassAttribute($reflection, RepeatableClassAttribute::class);
+
+        self::assertInstanceOf(RepeatableClassAttribute::class, $repeated);
+        self::assertSame('first', $repeated->name, 'the first of a repeated attribute is kept');
+        self::assertInstanceOf(ExampleClassAttribute::class, $reader->getClassAttribute($reflection, ExampleClassAttribute::class));
     }
 }

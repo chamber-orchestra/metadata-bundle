@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace ChamberOrchestra\MetadataBundle\Reader;
 
-use ChamberOrchestra\MetadataBundle\Exception\LogicException;
 use Doctrine\ORM\Mapping\MappingAttribute;
 
 class AttributeReader
@@ -61,6 +60,10 @@ class AttributeReader
     }
 
     /**
+     * An attribute that may be repeated on one target (`#[ORM\Index]`, `#[ORM\UniqueConstraint]`) is read once: the first instance is returned. The attributes
+     * the extensions look for are single, and the repeated ones belong to Doctrine, which reads them itself; a class that carries a repeatable attribute twice
+     * must still go through the extension drivers. (PHP itself refuses a repeated attribute that is not repeatable.).
+     *
      * @param \ReflectionAttribute<MappingAttribute>[] $reflectionAttributes
      *
      * @return array<class-string, MappingAttribute>
@@ -69,11 +72,7 @@ class AttributeReader
     {
         $result = [];
         foreach ($reflectionAttributes as $attr) {
-            $name = $attr->getName();
-            if (isset($result[$name])) {
-                throw new LogicException(\sprintf('Duplicate attribute "%s" detected. This reader only supports single instances of each attribute type.', $name));
-            }
-            $result[$name] = $attr->newInstance();
+            $result[$attr->getName()] ??= $attr->newInstance();
         }
 
         return $result;
